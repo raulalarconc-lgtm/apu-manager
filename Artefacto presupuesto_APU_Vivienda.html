@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presupuesto APU — Vivienda Unifamiliar</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#0c0e14;--bg2:#12151f;--bg3:#181c28;--bg4:#1e2332;--brd:#262d40;--txt:#d8dce8;--txt2:#8892ad;--txt3:#5d6680;--acc:#d4a017;--accL:#f0c040;--accD:#a07810;--grn:#2d9c6f;--red:#c0392b;--blue:#3a7bd5}
+body{font-family:'JetBrains Mono','SF Mono','Cascadia Code','Consolas',monospace;background:var(--bg);color:var(--txt);font-size:13px;line-height:1.5}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--brd);border-radius:3px}
+input,select{font-family:inherit}
+input:focus,select:focus{border-color:var(--acc)!important;outline:none}
+button{font-family:inherit}
+button:hover{opacity:0.85}
+tr:hover td{background:var(--bg3)!important}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+const D={"apus":[{"id":1,"desc":"IMPERMEABILIZACIÓN CON MANTO ASFÁLTICO APP 4 mm EN CUBIERTA","unit":"m²","qty":1,"mat":[{"cid":1,"q":1.15},{"cid":2,"q":0.3},{"cid":3,"q":0.02},{"cid":4,"q":0.005}],"mo":[{"cid":1,"h":0.6},{"cid":2,"h":0.6}],"eq":[{"cid":1,"q":1},{"cid":2,"q":0.08}]},{"id":2,"desc":"CONCRETO ESTRUCTURAL 3.500 psi PARA VIGAS Y COLUMNAS","unit":"m³","qty":1,"mat":[{"cid":5,"q":1.05},{"cid":6,"q":0.2}],"mo":[{"cid":1,"h":5},{"cid":2,"h":14}],"eq":[{"cid":1,"q":1},{"cid":3,"q":0.5},{"cid":4,"q":1.05}]},{"id":3,"desc":"EXCAVACIÓN MECÁNICA PARA CIMIENTOS PROFUNDIDAD h=2.50 m","unit":"m³","qty":1,"mat":[{"cid":7,"q":0.8}],"mo":[{"cid":1,"h":0.1},{"cid":2,"h":0.5}],"eq":[{"cid":1,"q":1},{"cid":5,"q":0.15},{"cid":6,"q":0.05}]},{"id":4,"desc":"MURO EN LADRILLO PRENSADO H-10 PERFORACIÓN VERTICAL 0.12x0.24x0.06 m","unit":"m²","qty":1,"mat":[{"cid":8,"q":65},{"cid":9,"q":0.025},{"cid":10,"q":0.008},{"cid":11,"q":3.3}],"mo":[{"cid":1,"h":1.3},{"cid":2,"h":1.3}],"eq":[{"cid":1,"q":1},{"cid":7,"q":0.05}]},{"id":5,"desc":"CUBIERTA EN TEJA TERMOACÚSTICA ESPESOR 30 mm","unit":"m²","qty":1,"mat":[{"cid":12,"q":1.05},{"cid":13,"q":0.8},{"cid":14,"q":8},{"cid":15,"q":0.1},{"cid":16,"q":0.1}],"mo":[{"cid":1,"h":0.45},{"cid":2,"h":0.45}],"eq":[{"cid":1,"q":1},{"cid":8,"q":0.08},{"cid":9,"q":0.08}]},{"id":6,"desc":"SUMINISTRO E INSTALACIÓN DE TABLERO ELÉCTRICO TRIFÁSICO 120/208V, 24 CIRCUITOS","unit":"und","qty":1,"mat":[{"cid":17,"q":1},{"cid":18,"q":24},{"cid":19,"q":1},{"cid":20,"q":6}],"mo":[{"cid":1,"h":8},{"cid":2,"h":8}],"eq":[{"cid":1,"q":1},{"cid":10,"q":1}]},{"id":7,"desc":"CERRAMIENTO EN MALLA ESLABONADA GALVANIZADA h=2.20 m CALIBRE 10","unit":"ml","qty":1,"mat":[{"cid":21,"q":2.2},{"cid":22,"q":0.33},{"cid":23,"q":0.027},{"cid":24,"q":2},{"cid":25,"q":3},{"cid":26,"q":0.03}],"mo":[{"cid":1,"h":0.5},{"cid":2,"h":0.7}],"eq":[{"cid":1,"q":1},{"cid":10,"q":0.05}]},{"id":8,"desc":"INSTALACIÓN DE INODORO AHORRADOR DUAL FLUSH 4.8/3 L","unit":"und","qty":1,"mat":[{"cid":27,"q":1},{"cid":28,"q":1},{"cid":29,"q":1},{"cid":30,"q":1},{"cid":31,"q":1},{"cid":32,"q":1}],"mo":[{"cid":1,"h":2.66},{"cid":2,"h":2.66}],"eq":[{"cid":1,"q":1}]},{"id":9,"desc":"PISO EN ADOQUÍN DE CONCRETO 6 cm TIPO UNIVERSO COLOR NATURAL","unit":"m²","qty":1,"mat":[{"cid":33,"q":1.05},{"cid":34,"q":0.15},{"cid":35,"q":0.04},{"cid":36,"q":0.005}],"mo":[{"cid":1,"h":1.6},{"cid":2,"h":1.6}],"eq":[{"cid":1,"q":1},{"cid":11,"q":0.1},{"cid":12,"q":0.05}]},{"id":10,"desc":"VENTANERÍA EN ALUMINIO SERIE 25 CON VIDRIO CLARO 6 mm","unit":"m²","qty":1,"mat":[{"cid":37,"q":1},{"cid":38,"q":0.3},{"cid":39,"q":4},{"cid":40,"q":0.5},{"cid":41,"q":4}],"mo":[{"cid":1,"h":1.2},{"cid":2,"h":1.2}],"eq":[{"cid":1,"q":1},{"cid":10,"q":0.15}]},{"id":11,"desc":"CIELO RASO EN DRYWALL RH 1/2\" CON PERFILERÍA METÁLICA","unit":"m²","qty":1,"mat":[{"cid":42,"q":0.34},{"cid":43,"q":0.8},{"cid":44,"q":0.8},{"cid":45,"q":0.15},{"cid":46,"q":0.03},{"cid":47,"q":0.5},{"cid":48,"q":0.07}],"mo":[{"cid":1,"h":0.7},{"cid":2,"h":0.7}],"eq":[{"cid":1,"q":1},{"cid":13,"q":0.05}]},{"id":12,"desc":"BORDILLO PREFABRICADO TIPO INVÍAS CLASE I h=15 cm","unit":"ml","qty":1,"mat":[{"cid":49,"q":1},{"cid":50,"q":0.015},{"cid":51,"q":0.003},{"cid":52,"q":0.05}],"mo":[{"cid":1,"h":0.8},{"cid":2,"h":0.8}],"eq":[{"cid":1,"q":1},{"cid":7,"q":0.03}]},{"id":13,"desc":"SISTEMA DE PUESTA A TIERRA RESIDENCIAL","unit":"und","qty":1,"mat":[{"cid":53,"q":1},{"cid":54,"q":15},{"cid":55,"q":2},{"cid":56,"q":1}],"mo":[{"cid":1,"h":4},{"cid":2,"h":4}],"eq":[{"cid":1,"q":1},{"cid":14,"q":0.5}]},{"id":14,"desc":"PUERTA METÁLICA EN LÁMINA COLD ROLLED CALIBRE 18","unit":"und","qty":1,"mat":[{"cid":57,"q":1},{"cid":58,"q":1},{"cid":59,"q":3},{"cid":60,"q":0.5},{"cid":61,"q":6},{"cid":62,"q":1}],"mo":[{"cid":1,"h":2},{"cid":2,"h":2}],"eq":[{"cid":1,"q":1},{"cid":10,"q":0.25}]},{"id":15,"desc":"RED DE DATOS: PUNTO UTP CATEGORÍA 6 CERTIFICADO","unit":"und","qty":1,"mat":[{"cid":63,"q":30},{"cid":64,"q":10},{"cid":65,"q":1},{"cid":66,"q":1},{"cid":67,"q":1}],"mo":[{"cid":1,"h":2.3},{"cid":2,"h":2.3}],"eq":[{"cid":1,"q":1},{"cid":15,"q":0.1}]},{"id":16,"desc":"PINTURA VINÍLICA TIPO 1 EN MUROS INTERIORES","unit":"m²","qty":1,"mat":[{"cid":68,"q":0.07},{"cid":69,"q":0.3},{"cid":70,"q":0.03},{"cid":71,"q":0.2},{"cid":72,"q":0.02}],"mo":[{"cid":1,"h":0.4},{"cid":2,"h":0.1}],"eq":[{"cid":1,"q":1},{"cid":16,"q":0.02}]},{"id":17,"desc":"SUMINISTRO E INSTALACIÓN DE CALENTADOR DE AGUA A GAS 10 L/min","unit":"und","qty":1,"mat":[{"cid":73,"q":1},{"cid":74,"q":4},{"cid":75,"q":2},{"cid":76,"q":3},{"cid":77,"q":1},{"cid":78,"q":2}],"mo":[{"cid":1,"h":4},{"cid":2,"h":4}],"eq":[{"cid":1,"q":1},{"cid":17,"q":0.5}]},{"id":18,"desc":"CANALETA DE DRENAJE SUPERFICIAL CON REJILLA FUNDIDA CLASE B125","unit":"ml","qty":1,"mat":[{"cid":79,"q":1},{"cid":80,"q":0.015},{"cid":81,"q":0.005},{"cid":82,"q":0.5}],"mo":[{"cid":1,"h":0.6},{"cid":2,"h":0.6}],"eq":[{"cid":1,"q":1},{"cid":7,"q":0.03}]},{"id":19,"desc":"RELLENO CON RECEBO B-200 COMPACTADO AL 95% PROCTOR MODIFICADO","unit":"m³","qty":1,"mat":[{"cid":83,"q":1.25}],"mo":[{"cid":1,"h":0.2},{"cid":2,"h":0.8}],"eq":[{"cid":1,"q":1},{"cid":18,"q":0.15},{"cid":19,"q":0.05}]},{"id":20,"desc":"IMPERMEABILIZACIÓN DE MUROS ENTERRADOS CON MEMBRANA LÍQUIDA ELÁSTICA","unit":"m²","qty":1,"mat":[{"cid":84,"q":0.8},{"cid":85,"q":0.2},{"cid":86,"q":1.1},{"cid":87,"q":0.05}],"mo":[{"cid":1,"h":0.5},{"cid":2,"h":0.5}],"eq":[{"cid":1,"q":1}]},{"id":21,"desc":"ESTRUCTURA METÁLICA EN ACERO A-36 PARA CUBIERTA","unit":"kg","qty":1,"mat":[{"cid":88,"q":1.05},{"cid":89,"q":0.005},{"cid":90,"q":0.02},{"cid":91,"q":0.003},{"cid":92,"q":0.01}],"mo":[{"cid":1,"h":0.1},{"cid":2,"h":0.1}],"eq":[{"cid":1,"q":1},{"cid":20,"q":0.015},{"cid":21,"q":0.005}]},{"id":22,"desc":"DEMOLICIÓN MANUAL DE MURO EN LADRILLO NO ESTRUCTURAL","unit":"m³","qty":1,"mat":[{"cid":93,"q":0.15}],"mo":[{"cid":1,"h":0},{"cid":2,"h":2.4}],"eq":[{"cid":1,"q":1},{"cid":22,"q":0.05}]},{"id":23,"desc":"LOSA ALIGERADA EN CONCRETO ESTRUCTURAL 3.000 psi, ESPESOR 0.25 m","unit":"m²","qty":1,"mat":[{"cid":94,"q":0.12},{"cid":95,"q":1.05},{"cid":96,"q":8},{"cid":97,"q":8}],"mo":[{"cid":1,"h":2.25},{"cid":2,"h":4.2}],"eq":[{"cid":1,"q":1},{"cid":23,"q":0.15},{"cid":4,"q":0.12}]},{"id":24,"desc":"SUMINISTRO E INSTALACIÓN DE AIRE ACONDICIONADO SPLIT 18.000 BTU/h","unit":"und","qty":1,"mat":[{"cid":98,"q":1},{"cid":99,"q":5},{"cid":100,"q":1},{"cid":101,"q":1.5}],"mo":[{"cid":1,"h":8},{"cid":2,"h":8}],"eq":[{"cid":1,"q":1},{"cid":17,"q":0.5},{"cid":10,"q":0.5}]},{"id":25,"desc":"PAVIMENTO RÍGIDO EN CONCRETO MR-45 kg/cm² ESPESOR 0.20 m","unit":"m²","qty":1,"mat":[{"cid":102,"q":0.21},{"cid":103,"q":0.15},{"cid":104,"q":1.1},{"cid":105,"q":1.05},{"cid":106,"q":0.3},{"cid":107,"q":0.15}],"mo":[{"cid":1,"h":0.25},{"cid":2,"h":2.2}],"eq":[{"cid":1,"q":1},{"cid":24,"q":0.03},{"cid":25,"q":0.05}]},{"id":26,"desc":"MURO DE CONTENCIÓN EN CONCRETO CICLÓPEO","unit":"m³","qty":1,"mat":[{"cid":108,"q":1.05},{"cid":109,"q":15},{"cid":110,"q":0.3},{"cid":111,"q":0.1},{"cid":112,"q":0.5}],"mo":[{"cid":1,"h":2},{"cid":2,"h":11}],"eq":[{"cid":1,"q":1},{"cid":26,"q":4},{"cid":23,"q":0.2}]},{"id":27,"desc":"SUMINISTRO E INSTALACIÓN DE LAVAMANOS TIPO MANOS LIBRES CON SENSOR","unit":"und","qty":1,"mat":[{"cid":113,"q":1},{"cid":114,"q":1},{"cid":115,"q":1},{"cid":116,"q":1},{"cid":117,"q":1}],"mo":[{"cid":1,"h":3},{"cid":2,"h":3}],"eq":[{"cid":1,"q":1},{"cid":10,"q":0.25}]},{"id":28,"desc":"ENCHAPE CERÁMICO EN FACHADA 30x45 cm TIPO CORONA ARCHITECTURAL","unit":"m²","qty":1,"mat":[{"cid":118,"q":1.08},{"cid":119,"q":1},{"cid":120,"q":6},{"cid":121,"q":1.5},{"cid":122,"q":0.2},{"cid":123,"q":0.02}],"mo":[{"cid":1,"h":1.7},{"cid":2,"h":1.7}],"eq":[{"cid":1,"q":1},{"cid":27,"q":0.1},{"cid":13,"q":0.1}]},{"id":29,"desc":"INSTALACIÓN DE PLANTA ELÉCTRICA DIÉSEL 45 KVA TRIFÁSICA","unit":"und","qty":1,"mat":[{"cid":124,"q":1},{"cid":125,"q":1},{"cid":126,"q":0.5}],"mo":[{"cid":1,"h":16},{"cid":2,"h":16}],"eq":[{"cid":1,"q":1},{"cid":21,"q":2}]},{"id":30,"desc":"SUMINISTRO E INSTALACIÓN DE COCINA INTEGRAL MODULAR","unit":"ml","qty":1,"mat":[{"cid":127,"q":1},{"cid":128,"q":1},{"cid":129,"q":6},{"cid":130,"q":1},{"cid":131,"q":1}],"mo":[{"cid":1,"h":6},{"cid":2,"h":6}],"eq":[{"cid":1,"q":1},{"cid":10,"q":0.5}]},{"id":31,"desc":"SISTEMA DE SEGURIDAD: CÁMARA IP EXTERIOR 4MP CON VISIÓN NOCTURNA","unit":"und","qty":1,"mat":[{"cid":132,"q":1},{"cid":133,"q":0.25},{"cid":134,"q":30},{"cid":135,"q":1},{"cid":136,"q":5}],"mo":[{"cid":1,"h":4},{"cid":2,"h":4}],"eq":[{"cid":1,"q":1},{"cid":10,"q":0.5},{"cid":16,"q":0.5}]},{"id":32,"desc":"SUMINISTRO E INSTALACIÓN DE TANQUE ELEVADO POLIETILENO 2.000 L","unit":"und","qty":1,"mat":[{"cid":137,"q":1},{"cid":138,"q":1},{"cid":139,"q":0.3},{"cid":140,"q":1},{"cid":141,"q":1}],"mo":[{"cid":1,"h":8},{"cid":2,"h":12}],"eq":[{"cid":1,"q":1},{"cid":20,"q":0.5}]},{"id":33,"desc":"SUMINISTRO E INSTALACIÓN DE PORTÓN AUTOMÁTICO CORREDIZO","unit":"m²","qty":1,"mat":[{"cid":142,"q":1},{"cid":143,"q":0.1},{"cid":144,"q":0.5},{"cid":145,"q":0.1},{"cid":146,"q":0.2},{"cid":147,"q":0.02}],"mo":[{"cid":1,"h":2},{"cid":2,"h":2}],"eq":[{"cid":1,"q":1},{"cid":20,"q":0.2}]},{"id":34,"desc":"FALSO PISO EN CONCRETO POBRE 1:3:6 ESPESOR 0.05 m","unit":"m²","qty":1,"mat":[{"cid":148,"q":0.055},{"cid":149,"q":1.1}],"mo":[{"cid":1,"h":0.15},{"cid":2,"h":1}],"eq":[{"cid":1,"q":1}]},{"id":35,"desc":"ACABADO DE MURO EN ESTUCO VENECIANO TIPO FIORENTINO","unit":"m²","qty":1,"mat":[{"cid":150,"q":0.8},{"cid":151,"q":0.15},{"cid":152,"q":0.05},{"cid":153,"q":0.5}],"mo":[{"cid":1,"h":1.2},{"cid":2,"h":0.5}],"eq":[{"cid":1,"q":1}]},{"id":36,"desc":"ADECUACIÓN DE BAÑO PARA PERSONAS CON MOVILIDAD REDUCIDA (PMR)","unit":"und","qty":1,"mat":[{"cid":154,"q":1},{"cid":155,"q":1},{"cid":156,"q":1},{"cid":157,"q":1},{"cid":158,"q":1},{"cid":159,"q":1}],"mo":[{"cid":1,"h":12},{"cid":2,"h":12}],"eq":[{"cid":1,"q":1},{"cid":10,"q":1}]},{"id":37,"desc":"CARPINTERÍA METÁLICA: REJA DE SEGURIDAD EN VARILLA LISA ϕ1/2\"","unit":"m²","qty":1,"mat":[{"cid":160,"q":1},{"cid":161,"q":0.15}],"mo":[{"cid":1,"h":0.8},{"cid":2,"h":0.8}],"eq":[{"cid":1,"q":1},{"cid":20,"q":0.1}]},{"id":38,"desc":"SUMINISTRO E INSTALACIÓN DE SISTEMA HIDRONEUMÁTICO RESIDENCIAL","unit":"und","qty":1,"mat":[{"cid":162,"q":1},{"cid":163,"q":1},{"cid":164,"q":1},{"cid":165,"q":1},{"cid":166,"q":1}],"mo":[{"cid":1,"h":8},{"cid":2,"h":8}],"eq":[{"cid":1,"q":1},{"cid":20,"q":0.5}]},{"id":39,"desc":"INSTALACIÓN DE SENSOR DE HUMO FOTOELÉCTRICO CONVENCIONAL","unit":"und","qty":1,"mat":[{"cid":167,"q":1},{"cid":168,"q":15}],"mo":[{"cid":1,"h":2.3},{"cid":2,"h":2.3}],"eq":[{"cid":1,"q":1},{"cid":16,"q":0.25}]},{"id":40,"desc":"SUMINISTRO E INSTALACIÓN DE PÉRGOLA EN MADERA INMUNIZADA","unit":"m²","qty":1,"mat":[{"cid":169,"q":1},{"cid":170,"q":0.06},{"cid":171,"q":0.1},{"cid":172,"q":0.5}],"mo":[{"cid":1,"h":1.5},{"cid":2,"h":1.5}],"eq":[{"cid":1,"q":1},{"cid":10,"q":0.1}]},{"id":41,"desc":"SUMINISTRO E INSTALACIÓN DE ASCENSOR HIDRÁULICO 4 PARADAS 450 kg","unit":"und","qty":1,"mat":[{"cid":173,"q":1}],"mo":[{"cid":1,"h":160},{"cid":2,"h":160}],"eq":[{"cid":1,"q":1},{"cid":21,"q":8}]},{"id":42,"desc":"PISO EN PORCELANATO RECTIFICADO 60x60 cm ANTIDESLIZANTE R10","unit":"m²","qty":1,"mat":[{"cid":174,"q":1.08},{"cid":175,"q":3},{"cid":176,"q":6},{"cid":177,"q":0.5},{"cid":178,"q":0.2}],"mo":[{"cid":1,"h":1.5},{"cid":2,"h":1.5}],"eq":[{"cid":1,"q":1},{"cid":28,"q":0.05}]},{"id":43,"desc":"RED CONTRAINCENDIOS CON GABINETE Y MANGUERA 1½\"","unit":"und","qty":1,"mat":[{"cid":179,"q":1},{"cid":180,"q":1},{"cid":181,"q":1},{"cid":182,"q":1}],"mo":[{"cid":1,"h":8},{"cid":2,"h":8}],"eq":[{"cid":1,"q":1},{"cid":20,"q":1}]},{"id":44,"desc":"MURO EN BLOQUE TIPO GARDEN WALL h=2.40 m","unit":"m²","qty":1,"mat":[{"cid":183,"q":12.5},{"cid":9,"q":0.02},{"cid":184,"q":1.5}],"mo":[{"cid":1,"h":0.7},{"cid":2,"h":0.7}],"eq":[{"cid":1,"q":1},{"cid":7,"q":0.03}]},{"id":45,"desc":"FACHADA VENTILADA EN ALUMINIO COMPUESTO 4 mm","unit":"m²","qty":1,"mat":[{"cid":185,"q":1.05},{"cid":186,"q":1},{"cid":187,"q":1},{"cid":188,"q":2},{"cid":189,"q":20}],"mo":[{"cid":1,"h":1.5},{"cid":2,"h":1.5}],"eq":[{"cid":1,"q":1},{"cid":29,"q":0.15},{"cid":10,"q":0.1}]},{"id":46,"desc":"SISTEMA DE DOMÓTICA BÁSICA KNX","unit":"und","qty":1,"mat":[{"cid":190,"q":1}],"mo":[{"cid":1,"h":40},{"cid":2,"h":40}],"eq":[{"cid":1,"q":1},{"cid":30,"q":3}]},{"id":47,"desc":"PISCINA ESTRUCTURAL 8x4x1.40 m CON SISTEMA DE FILTRACIÓN","unit":"und","qty":1,"mat":[{"cid":191,"q":1},{"cid":192,"q":1},{"cid":193,"q":65},{"cid":194,"q":24}],"mo":[{"cid":1,"h":320},{"cid":2,"h":480}],"eq":[{"cid":1,"q":1},{"cid":23,"q":10},{"cid":4,"q":20}]},{"id":48,"desc":"SUMINISTRO E INSTALACIÓN DE CHIMENEA A GAS 12 kW","unit":"und","qty":1,"mat":[{"cid":195,"q":1},{"cid":196,"q":3}],"mo":[{"cid":1,"h":8},{"cid":2,"h":8}],"eq":[{"cid":1,"q":1},{"cid":10,"q":0.5}]},{"id":49,"desc":"CERRAMIENTO EN VIDRIO TEMPLADO 10 mm CON HERRAJES TIPO ARAÑA","unit":"m²","qty":1,"mat":[{"cid":197,"q":1.05},{"cid":198,"q":4},{"cid":199,"q":0.3},{"cid":200,"q":1},{"cid":201,"q":4}],"mo":[{"cid":1,"h":2},{"cid":2,"h":2}],"eq":[{"cid":1,"q":1},{"cid":13,"q":0.15},{"cid":10,"q":0.1}]},{"id":50,"desc":"RED DE GAS NATURAL DOMICILIARIA","unit":"und","qty":1,"mat":[{"cid":202,"q":25},{"cid":203,"q":5},{"cid":204,"q":1},{"cid":205,"q":1}],"mo":[{"cid":1,"h":16},{"cid":2,"h":16}],"eq":[{"cid":1,"q":1},{"cid":20,"q":2},{"cid":31,"q":0.5}]},{"id":51,"desc":"INSTALACIÓN DE PANEL SOLAR FOTOVOLTAICO ON-GRID 5 kW","unit":"und","qty":1,"mat":[{"cid":206,"q":12},{"cid":207,"q":1},{"cid":208,"q":1},{"cid":209,"q":1},{"cid":210,"q":1}],"mo":[{"cid":1,"h":24},{"cid":2,"h":24}],"eq":[{"cid":1,"q":1},{"cid":10,"q":2},{"cid":13,"q":2}]},{"id":52,"desc":"MURO VERDE HIDROPÓNICO VERTICAL 20 m²","unit":"m²","qty":1,"mat":[{"cid":211,"q":1}],"mo":[{"cid":1,"h":2},{"cid":2,"h":2}],"eq":[{"cid":1,"q":1},{"cid":13,"q":0.1}]},{"id":53,"desc":"ENCHAPE EN PIEDRA NATURAL LAJA 3-5 cm","unit":"m²","qty":1,"mat":[{"cid":212,"q":1.1},{"cid":213,"q":1},{"cid":214,"q":2},{"cid":215,"q":0.05}],"mo":[{"cid":1,"h":2},{"cid":2,"h":2}],"eq":[{"cid":1,"q":1},{"cid":32,"q":0.08}]},{"id":54,"desc":"SISTEMA DE ASPIRACIÓN CENTRALIZADA","unit":"und","qty":1,"mat":[{"cid":216,"q":1},{"cid":217,"q":40},{"cid":218,"q":6},{"cid":219,"q":1}],"mo":[{"cid":1,"h":16},{"cid":2,"h":16}],"eq":[{"cid":1,"q":1}]},{"id":55,"desc":"SUMINISTRO E INSTALACIÓN DE SAUNA SECO 4 PERSONAS","unit":"und","qty":1,"mat":[{"cid":220,"q":1}],"mo":[{"cid":1,"h":24},{"cid":2,"h":24}],"eq":[{"cid":1,"q":1},{"cid":10,"q":1}]},{"id":56,"desc":"PISO ELEVADO TÉCNICO 60x60 cm REGISTRABLE","unit":"m²","qty":1,"mat":[{"cid":221,"q":1.03}],"mo":[{"cid":1,"h":0.6},{"cid":2,"h":0.6}],"eq":[{"cid":1,"q":1},{"cid":7,"q":0.03}]},{"id":57,"desc":"CUBIERTA VERDE EXTENSIVA CON SEDUM","unit":"m²","qty":1,"mat":[{"cid":222,"q":1}],"mo":[{"cid":1,"h":0.8},{"cid":2,"h":0.8}],"eq":[{"cid":1,"q":1}]},{"id":58,"desc":"INSTALACIÓN DE CERRADURA BIOMÉTRICA + TECLADO + TARJETA","unit":"und","qty":1,"mat":[{"cid":223,"q":1}],"mo":[{"cid":1,"h":3},{"cid":2,"h":1}],"eq":[{"cid":1,"q":1},{"cid":10,"q":0.25}]},{"id":59,"desc":"POZO SÉPTICO + CAJA DE INSPECCIÓN 3000 L","unit":"und","qty":1,"mat":[{"cid":224,"q":1},{"cid":225,"q":1},{"cid":226,"q":6}],"mo":[{"cid":1,"h":16},{"cid":2,"h":24}],"eq":[{"cid":1,"q":1},{"cid":33,"q":4}]},{"id":60,"desc":"SUMINISTRO E INSTALACIÓN DE CALDERA ELÉCTRICA 24 kW","unit":"und","qty":1,"mat":[{"cid":227,"q":1},{"cid":228,"q":1},{"cid":229,"q":1},{"cid":230,"q":1}],"mo":[{"cid":1,"h":16},{"cid":2,"h":16}],"eq":[{"cid":1,"q":1},{"cid":20,"q":1}]},{"id":61,"desc":"JARDÍN VERTICAL ARTIFICIAL PREMIUM","unit":"m²","qty":1,"mat":[{"cid":231,"q":1},{"cid":232,"q":1},{"cid":201,"q":4}],"mo":[{"cid":1,"h":0.8},{"cid":2,"h":0.8}],"eq":[{"cid":1,"q":1},{"cid":10,"q":0.08}]},{"id":62,"desc":"PAVIMENTO EN GRASS BLOCK CON CÉSPED","unit":"m²","qty":1,"mat":[{"cid":233,"q":1.05},{"cid":234,"q":1},{"cid":235,"q":0.1}],"mo":[{"cid":1,"h":0.5},{"cid":2,"h":0.8}],"eq":[{"cid":1,"q":1},{"cid":34,"q":0.05}]},{"id":63,"desc":"SISTEMA DE RIEGO AUTOMÁTICO POR ASPERSIÓN","unit":"zona","qty":1,"mat":[{"cid":236,"q":1}],"mo":[{"cid":1,"h":8},{"cid":2,"h":12}],"eq":[{"cid":1,"q":1}]},{"id":64,"desc":"INSTALACIÓN DE ESPEJO DECORATIVO CON LUZ LED PERIMETRAL","unit":"und","qty":1,"mat":[{"cid":237,"q":1}],"mo":[{"cid":1,"h":2},{"cid":2,"h":1}],"eq":[{"cid":1,"q":1},{"cid":10,"q":0.15}]},{"id":65,"desc":"MURO EN GAVIONES CAJA 1x1x2 m","unit":"m³","qty":1,"mat":[{"cid":238,"q":0.5},{"cid":239,"q":1.1},{"cid":240,"q":2},{"cid":241,"q":0.05}],"mo":[{"cid":1,"h":2},{"cid":2,"h":4}],"eq":[{"cid":1,"q":1}]},{"id":66,"desc":"SUMINISTRO E INSTALACIÓN DE PUERTA SECCIONAL AUTOMÁTICA","unit":"und","qty":1,"mat":[{"cid":242,"q":1}],"mo":[{"cid":1,"h":12},{"cid":2,"h":12}],"eq":[{"cid":1,"q":1},{"cid":10,"q":1}]},{"id":67,"desc":"PISO EN MADERA INGENIERADA 15 mm TRÁFICO ALTO","unit":"m²","qty":1,"mat":[{"cid":243,"q":1.05},{"cid":244,"q":1.1},{"cid":245,"q":0.4}],"mo":[{"cid":1,"h":0.5},{"cid":2,"h":0.5}],"eq":[{"cid":1,"q":1}]},{"id":68,"desc":"RED DE VOZ Y DATOS ESTRUCTURADA CAT6A","unit":"punto","qty":1,"mat":[{"cid":246,"q":1}],"mo":[{"cid":1,"h":3},{"cid":2,"h":3}],"eq":[{"cid":1,"q":1},{"cid":35,"q":0.15}]},{"id":69,"desc":"INSTALACIÓN DE CALEFACCIÓN POR RADIADORES ALUMINIO","unit":"zona","qty":1,"mat":[{"cid":247,"q":1},{"cid":248,"q":12},{"cid":249,"q":0.25},{"cid":250,"q":1},{"cid":251,"q":5}],"mo":[{"cid":1,"h":6},{"cid":2,"h":6}],"eq":[{"cid":1,"q":1}]},{"id":70,"desc":"SUMINISTRO E INSTALACIÓN DE JACUZZI EXTERIOR 6 PERSONAS","unit":"und","qty":1,"mat":[{"cid":252,"q":1}],"mo":[{"cid":1,"h":24},{"cid":2,"h":24}],"eq":[{"cid":1,"q":1},{"cid":36,"q":2}]},{"id":71,"desc":"CERRAMIENTO EN POLICARBONATO ALVEOLAR 16 mm BRONCE","unit":"m²","qty":1,"mat":[{"cid":253,"q":1.05},{"cid":254,"q":1},{"cid":255,"q":1}],"mo":[{"cid":1,"h":0.8},{"cid":2,"h":0.8}],"eq":[{"cid":1,"q":1},{"cid":10,"q":0.08}]},{"id":72,"desc":"SISTEMA DE ALARMA CONTRAINCENDIOS DIRECCIONABLE","unit":"und","qty":1,"mat":[{"cid":256,"q":1}],"mo":[{"cid":1,"h":40},{"cid":2,"h":40}],"eq":[{"cid":1,"q":1},{"cid":30,"q":2}]},{"id":73,"desc":"PAVIMENTO EN PIEDRA CORAL 30x30 cm","unit":"m²","qty":1,"mat":[{"cid":257,"q":1.08},{"cid":258,"q":6},{"cid":259,"q":2},{"cid":215,"q":0.05}],"mo":[{"cid":1,"h":1.8},{"cid":2,"h":1.8}],"eq":[{"cid":1,"q":1},{"cid":28,"q":0.05}]},{"id":74,"desc":"SUMINISTRO E INSTALACIÓN DE BOMBA SUMERGIBLE 2 HP POZO PROFUNDO","unit":"und","qty":1,"mat":[{"cid":260,"q":1},{"cid":261,"q":30},{"cid":262,"q":30},{"cid":263,"q":1}],"mo":[{"cid":1,"h":8},{"cid":2,"h":8}],"eq":[{"cid":1,"q":1}]},{"id":75,"desc":"ENCHAPE EN MÁRMOL TRAVERTINO 40x60 cm PULIDO","unit":"m²","qty":1,"mat":[{"cid":264,"q":1.08},{"cid":265,"q":6},{"cid":266,"q":0.5}],"mo":[{"cid":1,"h":2.3},{"cid":2,"h":2.3}],"eq":[{"cid":1,"q":1},{"cid":28,"q":0.08}]},{"id":76,"desc":"SISTEMA DE VIDEOPORTERO IP COLOR 7\"","unit":"und","qty":1,"mat":[{"cid":267,"q":1}],"mo":[{"cid":1,"h":4},{"cid":2,"h":4}],"eq":[{"cid":1,"q":1},{"cid":10,"q":0.25}]},{"id":77,"desc":"CUBIERTA EN TEJA DE ARCILLA TIPO ESPAÑOLA","unit":"m²","qty":1,"mat":[{"cid":268,"q":1.1},{"cid":269,"q":1},{"cid":270,"q":1.05}],"mo":[{"cid":1,"h":1.7},{"cid":2,"h":1.7}],"eq":[{"cid":1,"q":1},{"cid":29,"q":0.1}]},{"id":78,"desc":"INSTALACIÓN DE PUERTA TIPO VAIVÉN EN VIDRIO TEMPLADO 12 mm","unit":"und","qty":1,"mat":[{"cid":271,"q":1}],"mo":[{"cid":1,"h":4},{"cid":2,"h":4}],"eq":[{"cid":1,"q":1},{"cid":10,"q":0.25}]},{"id":79,"desc":"SUMINISTRO E INSTALACIÓN DE CALENTADOR SOLAR 300 L 24 TUBOS","unit":"und","qty":1,"mat":[{"cid":272,"q":1}],"mo":[{"cid":1,"h":8},{"cid":2,"h":8}],"eq":[{"cid":1,"q":1},{"cid":29,"q":1},{"cid":17,"q":0.5}]},{"id":80,"desc":"MURO DECORATIVO EN PIEDRA CULTURAL TIPO RÚSTICA","unit":"m²","qty":1,"mat":[{"cid":273,"q":1.1},{"cid":274,"q":1},{"cid":214,"q":2},{"cid":275,"q":0.03}],"mo":[{"cid":1,"h":1.7},{"cid":2,"h":1.7}],"eq":[{"cid":1,"q":1},{"cid":32,"q":0.05}]}],"mc":[{"id":1,"d":"Manto asfáltico APP 4 mm","u":"m²","p":158.46},{"id":2,"d":"Imprimante base solvente","u":"kg","p":77.14},{"id":3,"d":"Gas propano soplete (proporcional)","u":"gl","p":354.45},{"id":4,"d":"Mortero 1:3 media caña (proporcional)","u":"m³","p":1584.6},{"id":5,"d":"Concreto premezclado 3500 psi","u":"m³","p":2168.4},{"id":6,"d":"Membrana de curado químico","u":"kg","p":91.74},{"id":7,"d":"Combustible ACPM retroexcavadora","u":"gl","p":43.79},{"id":8,"d":"Ladrillo prensado H-10 0.12x0.24x0.06","u":"und","p":5.63},{"id":9,"d":"Mortero de pega 1:4","u":"m³","p":1417.8},{"id":10,"d":"Grout f'c=35 MPa","u":"m³","p":2001.6},{"id":11,"d":"Dovela Ø 3/8\"","u":"und","p":3.54},{"id":12,"d":"Teja termoacústica panel sándwich 30mm","u":"m²","p":283.56},{"id":13,"d":"Correa metálica cubierta","u":"ml","p":116.76},{"id":14,"d":"Tornillería autoperforante arandela EPDM","u":"und","p":1.88},{"id":15,"d":"Remate cumbrera metálico (proporcional)","u":"ml","p":133.44},{"id":16,"d":"Remate lateral cubierta (proporcional)","u":"ml","p":116.76},{"id":17,"d":"Tablero eléctrico trifásico 120/208V 24 ctos NEMA 1","u":"und","p":7714.5},{"id":18,"d":"Breaker termomagnético (promedio) x24","u":"und","p":187.65},{"id":19,"d":"Barraje cobre neutro y tierra","u":"jgo","p":750.6},{"id":20,"d":"Tubo EMT conduit acometida","u":"ml","p":77.14},{"id":21,"d":"Malla eslabonada galvanizada cal.10 h=2.20m","u":"m²","p":133.44},{"id":22,"d":"Poste tubo galvanizado Ø2½\" (1 c/3m)","u":"und","p":396.15},{"id":23,"d":"Concreto 3000 psi zapatas postes","u":"m³","p":1918.2},{"id":24,"d":"Tensores alambre galvanizado","u":"und","p":14.6},{"id":25,"d":"Alambre púas galvanizado (3 líneas)","u":"ml","p":2.61},{"id":26,"d":"Puerta acceso 1.00m (prorrateo)","u":"und","p":1188.45},{"id":27,"d":"Inodoro ahorrador dual flush 4.8/3L porcelana","u":"und","p":1584.6},{"id":28,"d":"Flanche PVC","u":"und","p":35.45},{"id":29,"d":"Pernos anclaje inoxidables con tapas","u":"jgo","p":50.04},{"id":30,"d":"Acople flexible","u":"und","p":62.55},{"id":31,"d":"Grifería interna completa","u":"jgo","p":271.05},{"id":32,"d":"Asiento polipropileno","u":"und","p":187.65},{"id":33,"d":"Adoquín concreto 6cm tipo universo","u":"m²","p":133.44},{"id":34,"d":"Sub-base granular (e=0.15m)","u":"m³","p":271.05},{"id":35,"d":"Arena lavada cama 3-4cm","u":"m³","p":229.35},{"id":36,"d":"Arena de sello","u":"m³","p":200.16},{"id":37,"d":"Ventanería aluminio serie 25 vidrio 6mm","u":"m²","p":1188.45},{"id":38,"d":"Silicona estructural y neutra","u":"cartucho","p":116.76},{"id":39,"d":"Anclajes químicos ventanería","u":"und","p":35.45},{"id":40,"d":"Herrajes operación ventanería","u":"jgo","p":187.65},{"id":41,"d":"Felpas sellamiento","u":"ml","p":14.6},{"id":42,"d":"Lámina drywall RH 1/2\" (1.22x2.44m)","u":"und","p":200.16},{"id":43,"d":"Canal galvanizado 89mm","u":"ml","p":27.11},{"id":44,"d":"Paral galvanizado 89mm","u":"ml","p":28.36},{"id":45,"d":"Alambre galvanizado suspensión","u":"kg","p":35.45},{"id":46,"d":"Cinta papel juntas drywall","u":"rollo","p":50.04},{"id":47,"d":"Masilla juntas drywall","u":"kg","p":35.45},{"id":48,"d":"Pintura vinílica blanca (2 manos)","u":"gl","p":258.54},{"id":49,"d":"Bordillo prefabricado INVÍAS Clase I h=15cm","u":"ml","p":116.76},{"id":50,"d":"Concreto 3000 psi base (e=10cm)","u":"m³","p":1918.2},{"id":51,"d":"Mortero nivelación","u":"m³","p":1417.8},{"id":52,"d":"Sikaflex juntas dilatación (c/3m)","u":"cartucho","p":133.44},{"id":53,"d":"Varilla copperweld 5/8\"x2.40m","u":"und","p":354.45},{"id":54,"d":"Conductor desnudo No.2 AWG","u":"ml","p":77.14},{"id":55,"d":"Soldadura exotérmica","u":"und","p":145.95},{"id":56,"d":"Pozo inspección 30x30cm con tapa","u":"und","p":396.15},{"id":57,"d":"Puerta metálica lámina cold rolled cal.18 c/marco","u":"und","p":2710.5},{"id":58,"d":"Cerradura de seguridad","u":"und","p":521.25},{"id":59,"d":"Bisagras 4\"","u":"und","p":75.06},{"id":60,"d":"Wash primer + esmalte anticorrosivo","u":"gl","p":354.45},{"id":61,"d":"Anclajes químicos puerta","u":"und","p":35.45},{"id":62,"d":"Silicona sello perimetral","u":"cartucho","p":75.06},{"id":63,"d":"Cable UTP Cat6 certificado","u":"ml","p":18.77},{"id":64,"d":"Tubo EMT 3/4\"","u":"ml","p":52.12},{"id":65,"d":"Caja rectangular","u":"und","p":18.77},{"id":66,"d":"Faceplate + Jack RJ45","u":"und","p":75.06},{"id":67,"d":"Patch cord prueba","u":"und","p":50.04},{"id":68,"d":"Pintura vinílica tipo 1 lavable","u":"gl","p":300.24},{"id":69,"d":"Estuco plástico","u":"kg","p":18.77},{"id":70,"d":"Sellador acrílico base agua","u":"gl","p":187.65},{"id":71,"d":"Lija","u":"pliego","p":10.43},{"id":72,"d":"Rodillo de felpa","u":"und","p":50.04},{"id":73,"d":"Calentador agua gas 10L/min tiro natural","u":"und","p":3544.5},{"id":74,"d":"Tubería cobre tipo M","u":"ml","p":116.76},{"id":75,"d":"Válvula corte 1/2\"","u":"und","p":104.25},{"id":76,"d":"Tubería cobre gas","u":"ml","p":133.44},{"id":77,"d":"Válvula individual gas","u":"und","p":145.95},{"id":78,"d":"Ducto evacuación aluminio","u":"ml","p":91.74},{"id":79,"d":"Canaleta drenaje superficial con rejilla B125","u":"ml","p":521.25},{"id":80,"d":"Concreto pobre cama apoyo","u":"m³","p":1334.4},{"id":81,"d":"Mortero anclaje 1:3","u":"m³","p":1584.6},{"id":82,"d":"Mortero impermeabilizado uniones","u":"kg","p":35.45},{"id":83,"d":"Recebo B-200 (incluye transporte)","u":"m³","p":175.14},{"id":84,"d":"Membrana líquida elastomérica (2 manos)","u":"kg","p":133.44},{"id":85,"d":"Imprimación acrílica","u":"kg","p":91.74},{"id":86,"d":"Geotextil NT-3000","u":"m²","p":27.11},{"id":87,"d":"Grava drenaje francés (proporcional)","u":"m³","p":271.05},{"id":88,"d":"Acero A-36 perfil IPE/HEB/cerchas","u":"kg","p":28.36},{"id":89,"d":"Platinas de anclaje (prorrateo)","u":"und","p":145.95},{"id":90,"d":"Pernos alta resistencia ASTM A-325 (prorrateo)","u":"und","p":35.45},{"id":91,"d":"Pintura epóxica anticorrosiva (prorrateo)","u":"gl","p":604.65},{"id":92,"d":"Sandblasting SA 2.5 (prorrateo)","u":"m²","p":104.25},{"id":93,"d":"Transporte escombros a botadero (volqueta)","u":"viaje","p":750.6},{"id":94,"d":"Concreto premezclado 3000 psi","u":"m³","p":1918.2},{"id":95,"d":"Formaleta madera/metálica losa","u":"m²","p":75.06},{"id":96,"d":"Casetones recuperables","u":"und","p":18.77},{"id":97,"d":"Acero refuerzo 60000 psi (proporcional)","u":"kg","p":17.51},{"id":98,"d":"Aire acondicionado split 18000BTU evap+cond","u":"und","p":13344},{"id":99,"d":"Tubería cobre aislada A/C","u":"ml","p":187.65},{"id":100,"d":"Bomba condensado","u":"und","p":771.45},{"id":101,"d":"Gas refrigerante R-410A","u":"kg","p":271.05},{"id":102,"d":"Concreto premezclado 3500 psi (MR-45)","u":"m³","p":2168.4},{"id":103,"d":"Sub-base granular","u":"m³","p":271.05},{"id":104,"d":"Lámina polietileno","u":"m²","p":14.6},{"id":105,"d":"Malla electrosoldada 6x6-6/6","u":"m²","p":52.12},{"id":106,"d":"Sello elastomérico juntas","u":"ml","p":62.55},{"id":107,"d":"Membrana curado química","u":"kg","p":91.74},{"id":108,"d":"Concreto ciclópeo (60%concreto+40%piedra)","u":"m³","p":1584.6},{"id":109,"d":"Acero refuerzo horizontal y vertical","u":"kg","p":17.51},{"id":110,"d":"Geodrén","u":"m²","p":116.76},{"id":111,"d":"Gravilla filtro","u":"m³","p":271.05},{"id":112,"d":"Emulsión asfáltica impermeabilizante","u":"gl","p":145.95},{"id":113,"d":"Lavamanos porcelana manos libres sensor","u":"und","p":5212.5},{"id":114,"d":"Grifería electrónica sensor infrarrojo","u":"und","p":1876.5},{"id":115,"d":"Válvula solenoide","u":"und","p":771.45},{"id":116,"d":"Mezclador termostático","u":"und","p":917.4},{"id":117,"d":"Desagüe cromado + sifón botella","u":"jgo","p":396.15},{"id":118,"d":"Cerámica fachada 30x45 Corona Architectural","u":"m²","p":216.84},{"id":119,"d":"Pañete maestreado impermeabilizado","u":"m²","p":91.74},{"id":120,"d":"Adhesivo cementoso exteriores","u":"kg","p":13.34},{"id":121,"d":"Boquilla impermeable color","u":"kg","p":27.11},{"id":122,"d":"Espaciadores","u":"bolsa","p":14.6},{"id":123,"d":"Ácido muriático diluido limpieza","u":"gl","p":62.55},{"id":124,"d":"Planta eléctrica diésel 45KVA trifásica completa","u":"und","p":271050},{"id":125,"d":"Tablero transferencia automática","u":"und","p":35445},{"id":126,"d":"Concreto 3000 psi base","u":"m³","p":1918.2},{"id":127,"d":"Cocina integral modular MDF fórmica","u":"ml","p":7714.5},{"id":128,"d":"Mesón granito natural pulido","u":"ml","p":1876.5},{"id":129,"d":"Bisagras hidráulicas","u":"und","p":75.06},{"id":130,"d":"Herrajes cocina calidad","u":"jgo","p":354.45},{"id":131,"d":"Salpicadero cerámico","u":"ml","p":187.65},{"id":132,"d":"Cámara IP exterior 4MP domo vandal proof","u":"und","p":2710.5},{"id":133,"d":"NVR grabación (prorrateo)","u":"und","p":5004},{"id":134,"d":"Cable UTP Cat6 exterior","u":"ml","p":22.94},{"id":135,"d":"Fuente poder 12V","u":"und","p":187.65},{"id":136,"d":"Tubo galvanizado canalización","u":"ml","p":75.06},{"id":137,"d":"Tanque polietileno 2000L tricapa UV","u":"und","p":3544.5},{"id":138,"d":"Estructura metálica soporte ángulo galvanizado","u":"jgo","p":2710.5},{"id":139,"d":"Concreto 3000 psi cimentación torre","u":"m³","p":1918.2},{"id":140,"d":"Accesorios hidráulicos tanque","u":"jgo","p":771.45},{"id":141,"d":"Tubería alimentación y distribución","u":"jgo","p":1042.5},{"id":142,"d":"Portón automático corredizo estructura+lámina","u":"m²","p":1334.4},{"id":143,"d":"Motor reductor 1/2 HP","u":"und","p":5212.5},{"id":144,"d":"Cremallera metálica","u":"ml","p":187.65},{"id":145,"d":"Sensores seguridad","u":"jgo","p":771.45},{"id":146,"d":"Control remoto","u":"und","p":271.05},{"id":147,"d":"Concreto 3000 psi rieles","u":"m³","p":1918.2},{"id":148,"d":"Concreto pobre 1:3:6","u":"m³","p":1167.6},{"id":149,"d":"Polietileno cal.6 mil","u":"m²","p":14.6},{"id":150,"d":"Estuco veneciano tipo Fiorentino (3 manos)","u":"kg","p":187.65},{"id":151,"d":"Imprimante base estuco veneciano","u":"kg","p":116.76},{"id":152,"d":"Cera protectora estuco","u":"lt","p":271.05},{"id":153,"d":"Lija fina","u":"pliego","p":10.43},{"id":154,"d":"Inodoro elevado PMR h=45cm","u":"und","p":2168.4},{"id":155,"d":"Barra apoyo abatible inodoro","u":"und","p":1188.45},{"id":156,"d":"Lavamanos suspendido grifería monomando","u":"und","p":1876.5},{"id":157,"d":"Espejo inclinable PMR","u":"und","p":771.45},{"id":158,"d":"Barras apoyo ducha","u":"jgo","p":1334.4},{"id":159,"d":"Señalización accesibilidad","u":"jgo","p":271.05},{"id":160,"d":"Reja seguridad varilla lisa + bastidor ángulo","u":"m²","p":604.65},{"id":161,"d":"Anticorrosivo + esmalte sintético","u":"gl","p":354.45},{"id":162,"d":"Bomba centrífuga 1HP","u":"und","p":3544.5},{"id":163,"d":"Tanque hidroneumático 80L","u":"und","p":2710.5},{"id":164,"d":"Presostato + manómetro","u":"jgo","p":521.25},{"id":165,"d":"Válvulas corte y accesorios","u":"jgo","p":771.45},{"id":166,"d":"Tablero control hidroneumático","u":"und","p":1459.5},{"id":167,"d":"Sensor humo fotoeléctrico convencional","u":"und","p":521.25},{"id":168,"d":"Cable certificado incendios","u":"ml","p":35.45},{"id":169,"d":"Pérgola madera inmunizada (columnas+vigas+correas)","u":"m²","p":1188.45},{"id":170,"d":"Stain protector madera","u":"gl","p":354.45},{"id":171,"d":"Tornillería galvanizada pérgola","u":"jgo","p":187.65},{"id":172,"d":"Anclajes químicos pérgola","u":"und","p":50.04},{"id":173,"d":"Ascensor hidráulico 4 paradas 450kg completo","u":"und","p":771450},{"id":174,"d":"Porcelanato rectificado 60x60 antideslizante R10","u":"m²","p":271.05},{"id":175,"d":"Mortero autonivelante","u":"kg","p":18.77},{"id":176,"d":"Adhesivo cementoso C2TE S1","u":"kg","p":15.85},{"id":177,"d":"Boquilla epóxica gris","u":"kg","p":75.06},{"id":178,"d":"Espaciadores 2mm","u":"bolsa","p":14.6},{"id":179,"d":"Gabinete contraincendios rojo vidrio completo","u":"und","p":11884.5},{"id":180,"d":"Manguera semi-rígida 30m + pitón","u":"jgo","p":2710.5},{"id":181,"d":"Válvula globo 2½\"","u":"und","p":771.45},{"id":182,"d":"Conexión siamesa","u":"und","p":1459.5},{"id":183,"d":"Bloque concreto visto 15x20x40 garden wall","u":"und","p":13.34},{"id":184,"d":"Acero amarre Ø8mm c/4 hileras","u":"kg","p":17.51},{"id":185,"d":"Panel ACM aluminio compuesto 4mm Alucobond","u":"m²","p":771.45},{"id":186,"d":"Subestructura aluminio extrusionado","u":"m²","p":396.15},{"id":187,"d":"Aislamiento lana roca 50mm","u":"m²","p":133.44},{"id":188,"d":"Perfil EPDM juntas","u":"ml","p":50.04},{"id":189,"d":"Remaches ciegos","u":"und","p":1.88},{"id":190,"d":"Sistema domótica KNX completo","u":"und","p":104250},{"id":191,"d":"Piscina estructural concreto armado completa","u":"und","p":354450},{"id":192,"d":"Sistema filtración (bomba+filtro+skimmer+boquillas)","u":"und","p":35445},{"id":193,"d":"Membrana PVC armada","u":"m²","p":354.45},{"id":194,"d":"Borde piedra coral","u":"ml","p":521.25},{"id":195,"d":"Chimenea gas 12kW cerrada completa","u":"und","p":35445},{"id":196,"d":"Ducto salida coaxial Ø80/125mm","u":"ml","p":271.05},{"id":197,"d":"Vidrio templado 10mm transparente","u":"m²","p":771.45},{"id":198,"d":"Herrajes tipo araña inox 316","u":"und","p":521.25},{"id":199,"d":"Silicona Dow Corning 995","u":"cartucho","p":354.45},{"id":200,"d":"Parales y travesaños ocultos","u":"ml","p":396.15},{"id":201,"d":"Anclajes químicos","u":"und","p":35.45},{"id":202,"d":"Tubería Schedule 40 gas natural","u":"ml","p":145.95},{"id":203,"d":"Válvula corte gas por zona","u":"und","p":187.65},{"id":204,"d":"Regulador presión gas","u":"und","p":771.45},{"id":205,"d":"Medidor externo gas","u":"und","p":1042.5},{"id":206,"d":"Panel solar 450W monocristalino x12","u":"und","p":3544.5},{"id":207,"d":"Inversor híbrido 5kW","u":"und","p":18765},{"id":208,"d":"Estructura aluminio inclinada 20°","u":"jgo","p":7714.5},{"id":209,"d":"Cableado solar + tablero protección AC/DC","u":"jgo","p":5212.5},{"id":210,"d":"Sistema monitoreo remoto","u":"und","p":2710.5},{"id":211,"d":"Muro verde hidropónico completo","u":"m²","p":1334.4},{"id":212,"d":"Piedra natural laja 3-5cm Santafé","u":"m²","p":271.05},{"id":213,"d":"Adhesivo cementoso + anclajes mecánicos","u":"m²","p":75.06},{"id":214,"d":"Mortero pigmentado boquilla","u":"kg","p":35.45},{"id":215,"d":"Sellado hidrófugo","u":"lt","p":187.65},{"id":216,"d":"Sistema aspiración centralizada 1800W completo","u":"und","p":50040},{"id":217,"d":"Tubería PVC 50mm aspiración","u":"ml","p":75.06},{"id":218,"d":"Puntos aspiración válvula automática x6","u":"und","p":771.45},{"id":219,"d":"Manguera 9m + accesorios limpieza","u":"jgo","p":1459.5},{"id":220,"d":"Sauna seco 4 personas completo","u":"und","p":62550},{"id":221,"d":"Piso elevado técnico completo","u":"m²","p":771.45},{"id":222,"d":"Cubierta verde extensiva completa","u":"m²","p":688.05},{"id":223,"d":"Cerradura biométrica + teclado + tarjeta + app","u":"und","p":7714.5},{"id":224,"d":"Pozo séptico anillos concreto 3000L completo","u":"und","p":14595},{"id":225,"d":"Caja inspección 60x60 con tapa","u":"und","p":1042.5},{"id":226,"d":"Tubería PVC 4\" entrada/salida","u":"ml","p":91.74},{"id":227,"d":"Caldera eléctrica 24kW mural modulante","u":"und","p":50040},{"id":228,"d":"Depósito acumulador 200L inox","u":"und","p":14595},{"id":229,"d":"Bomba circuladora + vaso expansión","u":"jgo","p":3544.5},{"id":230,"d":"Termostatos ambiente x2","u":"jgo","p":1459.5},{"id":231,"d":"Jardín vertical artificial premium paneles UV","u":"m²","p":771.45},{"id":232,"d":"Estructura metálica oculta","u":"m²","p":187.65},{"id":233,"d":"Grass block concreto 40x40x10","u":"m²","p":158.46},{"id":234,"d":"Tierra vegetal + semilla césped kikuyo","u":"m²","p":50.04},{"id":235,"d":"Sub-base granular (e=0.10m)","u":"m³","p":271.05},{"id":236,"d":"Sistema riego automático aspersión completo","u":"zona","p":11884.5},{"id":237,"d":"Espejo biselado 6mm + LED + sensor + antiempañante","u":"und","p":2710.5},{"id":238,"d":"Gavión caja galvanizada 1x1x2m (prorrateo)","u":"und","p":1459.5},{"id":239,"d":"Piedra río 15-25cm seleccionada","u":"m³","p":354.45},{"id":240,"d":"Geotextil separador","u":"m²","p":22.94},{"id":241,"d":"Concreto ciclópeo coronación (proporcional)","u":"m³","p":1584.6},{"id":242,"d":"Puerta seccional automática sandwich 40mm completa","u":"und","p":35445},{"id":243,"d":"Piso madera ingenierada 15mm roble tráfico alto","u":"m²","p":604.65},{"id":244,"d":"Manta anti-humedad","u":"m²","p":27.11},{"id":245,"d":"Zócalo a juego madera","u":"ml","p":75.06},{"id":246,"d":"Red voz datos Cat6A completo por punto","u":"punto","p":1876.5},{"id":247,"d":"Radiador aluminio 6-10 elementos","u":"und","p":1876.5},{"id":248,"d":"Tubería multicapa PEX-AL-PEX","u":"ml","p":75.06},{"id":249,"d":"Colector con purgadores","u":"und","p":1188.45},{"id":250,"d":"Termostato ambiente","u":"und","p":771.45},{"id":251,"d":"Anticongelante","u":"lt","p":104.25},{"id":252,"d":"Jacuzzi exterior 6 personas completo","u":"und","p":145950},{"id":253,"d":"Policarbonato alveolar 16mm bronce","u":"m²","p":354.45},{"id":254,"d":"Estructura aluminio termolacado","u":"m²","p":271.05},{"id":255,"d":"Perfiles H + remates","u":"ml","p":104.25},{"id":256,"d":"Sistema alarma contraincendios direccionable completo","u":"und","p":104250},{"id":257,"d":"Piedra coral 30x30cm corte diamante","u":"m²","p":396.15},{"id":258,"d":"Adhesivo cementoso doble encolado","u":"kg","p":15.85},{"id":259,"d":"Mortero pigmentado boquilla 5mm","u":"kg","p":35.45},{"id":260,"d":"Bomba sumergible 2HP 4\" + motor","u":"und","p":14595},{"id":261,"d":"Tubería impulsión PEAD 2\"","u":"ml","p":104.25},{"id":262,"d":"Cable sumergible","u":"ml","p":75.06},{"id":263,"d":"Tablero control bomba sumergible","u":"und","p":2710.5},{"id":264,"d":"Mármol travertino 40x60 pulido","u":"m²","p":771.45},{"id":265,"d":"Adhesivo blanco C2TES1","u":"kg","p":22.94},{"id":266,"d":"Boquilla epóxica beige","u":"kg","p":91.74},{"id":267,"d":"Sistema videoportero IP color 7\" completo","u":"und","p":11884.5},{"id":268,"d":"Teja arcilla tipo española curva roja","u":"m²","p":145.95},{"id":269,"d":"Estructura madera inmunizada cubierta","u":"m²","p":271.05},{"id":270,"d":"Lámina asfáltica bajo teja","u":"m²","p":50.04},{"id":271,"d":"Puerta vaivén vidrio templado 12mm completa","u":"und","p":11884.5},{"id":272,"d":"Calentador solar 300L 24 tubos heat pipe completo","u":"und","p":27105},{"id":273,"d":"Piedra cultural tipo rústica artificial 5-8cm","u":"m²","p":271.05},{"id":274,"d":"Adhesivo cementoso + anclajes c/60cm","u":"m²","p":75.06},{"id":275,"d":"Sellado hidrófugo final","u":"lt","p":187.65}],"lc":[{"id":1,"d":"Oficial de construcción","j":750.6,"vh":93.825},{"id":2,"d":"Ayudante de construcción","j":500.4,"vh":62.55}],"ec":[{"id":1,"d":"Herramienta menor (5% M.O.)","u":"%MO","t":0.05},{"id":2,"d":"Soplete termofusionado","u":"día","t":187.65},{"id":3,"d":"Vibrador de aguja","u":"día","t":271.05},{"id":4,"d":"Bombeo concreto","u":"m³","t":187.65},{"id":5,"d":"Retroexcavadora CAT 420","u":"hora","t":750.6},{"id":6,"d":"Bomba achique (si necesario)","u":"día","t":271.05},{"id":7,"d":"Nivel láser","u":"día","t":187.65},{"id":8,"d":"Andamio certificado alturas","u":"día","t":145.95},{"id":9,"d":"EPP completo alturas","u":"día","t":104.25},{"id":10,"d":"Taladro percutor","u":"día","t":145.95},{"id":11,"d":"Placa vibratoria compactadora","u":"día","t":354.45},{"id":12,"d":"Cortadora adoquín","u":"día","t":271.05},{"id":13,"d":"Andamio","u":"día","t":145.95},{"id":14,"d":"Equipo medición resistencia tierra","u":"día","t":500.4},{"id":15,"d":"Equipo Fluke tester certificación","u":"día","t":1042.5},{"id":16,"d":"Escalera extensible","u":"día","t":104.25},{"id":17,"d":"Equipo soldadura cobre","u":"día","t":229.35},{"id":18,"d":"Vibroplaca / rodillo compactación","u":"día","t":396.15},{"id":19,"d":"Carrotanque humectación","u":"viaje","t":500.4},{"id":20,"d":"Equipo soldadura","u":"día","t":229.35},{"id":21,"d":"Grúa telescópica montaje","u":"hora","t":1042.5},{"id":22,"d":"Compresor (si aplica)","u":"día","t":312.75},{"id":23,"d":"Vibrador aguja","u":"día","t":271.05},{"id":24,"d":"Cortadora juntas","u":"día","t":271.05},{"id":25,"d":"Vibroplaca","u":"día","t":396.15},{"id":26,"d":"Formaleta contención","u":"m²","t":14.6},{"id":27,"d":"Cortadora eléctrica enchape","u":"día","t":187.65},{"id":28,"d":"Cortadora disco diamantado","u":"día","t":271.05},{"id":29,"d":"Andamio certificado","u":"día","t":145.95},{"id":30,"d":"Equipo programación","u":"día","t":500.4},{"id":31,"d":"Equipo pruebas hermeticidad","u":"día","t":500.4},{"id":32,"d":"Cortadora eléctrica","u":"día","t":187.65},{"id":33,"d":"Retroexcavadora","u":"hora","t":750.6},{"id":34,"d":"Placa vibratoria","u":"día","t":354.45},{"id":35,"d":"Equipo Fluke DSX-8000 certificación","u":"día","t":1042.5},{"id":36,"d":"Grúa telescópica","u":"hora","t":1042.5}],"aiu":{"admin":13,"imp":3,"util":3,"iva":16}};
+</script>
+<script type="text/babel">
+const{useState,useMemo,useCallback}=React;
+
+const fmt=n=>{const v=Math.round(n||0);return v.toString().replace(/\B(?=(\d{3})+(?!\d))/g,",")};
+const fmt2=n=>new Intl.NumberFormat("es-MX",{minimumFractionDigits:2,maximumFractionDigits:2}).format(n||0);
+
+function App(){
+const[apus,setApus]=useState(D.apus);
+const[mc,setMc]=useState(D.mc);
+const[lc,setLc]=useState(D.lc);
+const[ec,setEc]=useState(D.ec);
+const[aiu,setAiu]=useState(D.aiu);
+const[view,setView]=useState("resumen");
+const[selId,setSelId]=useState(null);
+const[search,setSearch]=useState("");
+const[catTab,setCatTab]=useState(0);
+const[showAIU,setShowAIU]=useState(false);
+const[modal,setModal]=useState(null);
+const[newForm,setNewForm]=useState({desc:"",unit:"m²",mat:[],mo:[],eq:[]});
+const[addForm,setAddForm]=useState({type:"mat",cid:"",qty:"",h:""});
+const[newMat,setNewMat]=useState({d:"",u:"",p:""});
+const[newMo,setNewMo]=useState({d:"",j:""});
+const[newEq,setNewEq]=useState({d:"",u:"",t:""});
+const[catSearch,setCatSearch]=useState("");
+
+const getMat=useCallback(id=>mc.find(m=>m.id===id),[mc]);
+const getMo=useCallback(id=>lc.find(m=>m.id===id),[lc]);
+const getEq=useCallback(id=>ec.find(e=>e.id===id),[ec]);
+
+const calcAPU=useCallback((apu)=>{
+  const ms=apu.mat.reduce((s,m)=>{const c=getMat(m.cid);return s+(c?c.p*m.q:0)},0);
+  const ls=apu.mo.reduce((s,m)=>{const c=getMo(m.cid);return s+(c?c.vh*m.h:0)},0);
+  const es=apu.eq.reduce((s,e)=>{const c=getEq(e.cid);if(!c)return s;return s+(c.u==="%MO"?c.t*e.q*ls:c.t*e.q)},0);
+  return{ms,ls,es,cd:ms+ls+es};
+},[getMat,getMo,getEq]);
+
+const resumen=useMemo(()=>{
+  let cd=0;
+  const rows=apus.map(a=>{const c=calcAPU(a);const t=c.cd*a.qty;cd+=t;return{...a,...c,total:t}});
+  const admin=cd*aiu.admin/100;const imp=cd*aiu.imp/100;const util=cd*aiu.util/100;
+  const aiuT=admin+imp+util;const ivaV=util*aiu.iva/100;
+  return{rows,cd,admin,imp,util,aiuT,ivaV,gt:cd+aiuT+ivaV};
+},[apus,calcAPU,aiu]);
+
+const filtered=useMemo(()=>{
+  if(!search)return resumen.rows;
+  const s=search.toLowerCase();
+  return resumen.rows.filter(r=>r.desc.toLowerCase().includes(s)||String(r.id).includes(s));
+},[resumen.rows,search]);
+
+const selAPU=useMemo(()=>selId?apus.find(a=>a.id===selId):null,[apus,selId]);
+const selCalc=useMemo(()=>selAPU?calcAPU(selAPU):null,[selAPU,calcAPU]);
+
+const updateQty=(id,v)=>setApus(p=>p.map(a=>a.id===id?{...a,qty:Math.max(0,parseFloat(v)||0)}:a));
+const openAPU=id=>{setSelId(id);setView("detalle")};
+
+const updateInsumoField=(apuId,sec,idx,field,val)=>{
+  setApus(p=>p.map(a=>{
+    if(a.id!==apuId)return a;
+    const u={...a};u[sec]=[...a[sec]];u[sec][idx]={...u[sec][idx],[field]:parseFloat(val)||0};return u;
+  }));
+};
+
+const removeInsumo=(apuId,sec,idx)=>setApus(p=>p.map(a=>a.id!==apuId?a:{...a,[sec]:a[sec].filter((_,i)=>i!==idx)}));
+
+const addInsumoToAPU=(apuId)=>{
+  const{type,cid,qty,h}=addForm;if(!cid)return;const cidN=parseInt(cid);
+  setApus(p=>p.map(a=>{
+    if(a.id!==apuId)return a;const u={...a};
+    if(type==="mat")u.mat=[...a.mat,{cid:cidN,q:parseFloat(qty)||0}];
+    else if(type==="mo")u.mo=[...a.mo,{cid:cidN,h:parseFloat(h)||0}];
+    else u.eq=[...a.eq,{cid:cidN,q:parseFloat(qty)||0}];
+    return u;
+  }));
+  setAddForm({type:"mat",cid:"",qty:"",h:""});setModal(null);
+};
+
+const updateCatPrice=(type,id,field,val)=>{
+  const v=parseFloat(val)||0;
+  if(type==="mat")setMc(p=>p.map(m=>m.id===id?{...m,[field]:v}:m));
+  else if(type==="mo"){if(field==="j")setLc(p=>p.map(m=>m.id===id?{...m,j:v,vh:v/8}:m));else setLc(p=>p.map(m=>m.id===id?{...m,[field]:v}:m));}
+  else setEc(p=>p.map(e=>e.id===id?{...e,[field]:v}:e));
+};
+
+const addNewMaterial=()=>{if(!newMat.d)return;setMc(p=>[...p,{id:Math.max(0,...p.map(m=>m.id))+1,d:newMat.d,u:newMat.u,p:parseFloat(newMat.p)||0}]);setNewMat({d:"",u:"",p:""});};
+const addNewLabor=()=>{if(!newMo.d)return;const j=parseFloat(newMo.j)||0;setLc(p=>[...p,{id:Math.max(0,...p.map(m=>m.id))+1,d:newMo.d,j,vh:j/8}]);setNewMo({d:"",j:""});};
+const addNewEquip=()=>{if(!newEq.d)return;setEc(p=>[...p,{id:Math.max(0,...p.map(e=>e.id))+1,d:newEq.d,u:newEq.u,t:parseFloat(newEq.t)||0}]);setNewEq({d:"",u:"",t:""});};
+
+const createAPU=()=>{
+  if(!newForm.desc)return;
+  const nid=Math.max(0,...apus.map(a=>a.id))+1;
+  setApus(p=>[...p,{id:nid,desc:newForm.desc,unit:newForm.unit,qty:1,mat:[...newForm.mat],mo:[...newForm.mo],eq:[...newForm.eq]}]);
+  setNewForm({desc:"",unit:"m²",mat:[],mo:[],eq:[]});setView("resumen");
+};
+const addToNewAPU=(type)=>{
+  const{cid,qty,h}=addForm;if(!cid)return;const cidN=parseInt(cid);
+  setNewForm(p=>{const u={...p};
+    if(type==="mat"){const cat=mc.find(c=>c.id===cidN);if(cat)u.mat=[...p.mat,{cid:cidN,q:parseFloat(qty)||0}];}
+    else if(type==="mo"){const cat=lc.find(c=>c.id===cidN);if(cat)u.mo=[...p.mo,{cid:cidN,h:parseFloat(h)||0}];}
+    else{const cat=ec.find(c=>c.id===cidN);if(cat)u.eq=[...p.eq,{cid:cidN,q:parseFloat(qty)||0}];}
+    return u;
+  });
+  setAddForm({type:"mat",cid:"",qty:"",h:""});
+};
+const removeNewAPU=(sec,idx)=>setNewForm(p=>({...p,[sec]:p[sec].filter((_,i)=>i!==idx)}));
+const deleteAPU=(id)=>{setApus(p=>p.filter(a=>a.id!==id));if(selId===id){setSelId(null);setView("resumen")}};
+
+// ═══════ EXCEL EXPORT ═══════
+const downloadAPUExcel=(apuId)=>{
+  const apu=apus.find(a=>a.id===apuId);
+  if(!apu)return;
+  const padId=String(apu.id).padStart(2,'0');
+  const rows=[];const merges=[];
+  const psh=(arr)=>{rows.push(arr);return rows.length};
+  const mg=(r,c1,c2)=>merges.push({s:{r,c:c1},e:{r,c:c2}});
+  let r;
+
+  r=psh(["ANÁLISIS DE PRECIOS UNITARIOS (APU)","","","","",""])-1;mg(r,0,5);
+  r=psh(["Proyecto: Vivienda Unifamiliar 2 Niveles — 300 m² — Zona Rural México","","","","",""])-1;mg(r,0,5);
+  psh([]);
+  psh(["Ítem:",apu.id,"","Unidad:",apu.unit,""]);
+  psh(["Fecha:",new Date().toLocaleDateString("es-MX"),"","","",""]);
+  r=psh([apu.desc,"","","","",""])-1;mg(r,0,5);
+  psh([]);
+
+  // 1. MATERIALES
+  r=psh(["1. MATERIALES","","","","",""])-1;mg(r,0,5);
+  psh(["Nº","Descripción","Unidad","Precio Unit. (MXN)","Cantidad","Subtotal (MXN)"]);
+  const matStart=rows.length;
+  apu.mat.forEach((m,i)=>{const cat=getMat(m.cid);if(cat)psh([i+1,cat.d,cat.u,cat.p,m.q,null]);});
+  const matEnd=rows.length;
+  const matSubRow=psh(["","","","","SUBTOTAL MATERIALES:",null]);
+  psh([]);
+
+  // 2. MANO DE OBRA
+  r=psh(["2. MANO DE OBRA","","","","",""])-1;mg(r,0,5);
+  psh(["Nº","Descripción","Jornal/día (MXN)","Valor hora (MXN)","Horas/Und","Subtotal (MXN)"]);
+  const moStart=rows.length;
+  apu.mo.forEach((m,i)=>{const cat=getMo(m.cid);if(cat)psh([i+1,cat.d,cat.j,cat.vh,m.h,null]);});
+  const moEnd=rows.length;
+  const moSubRow=psh(["","","","","SUBTOTAL MANO DE OBRA:",null]);
+  psh([]);
+
+  // 3. EQUIPOS
+  r=psh(["3. EQUIPOS Y HERRAMIENTA","","","","",""])-1;mg(r,0,5);
+  psh(["Nº","Descripción","Unidad","Tarifa (MXN)","Cantidad","Subtotal (MXN)"]);
+  const eqStart=rows.length;
+  const eqIsPercent=[];
+  apu.eq.forEach((e,i)=>{const cat=getEq(e.cid);if(cat){eqIsPercent.push(cat.u==="%MO");psh([i+1,cat.d,cat.u,cat.t,e.q,null]);}});
+  const eqEnd=rows.length;
+  const eqSubRow=psh(["","","","","SUBTOTAL EQUIPOS:",null]);
+  psh([]);psh([]);
+
+  const cdRow=psh(["","","","COSTO DIRECTO TOTAL POR "+apu.unit+":",null,null]);
+  psh([]);
+  psh(["","","","","Desglose:",""]);
+  const desMatRow=psh(["","","","","  Materiales:",null]);
+  const desMoRow=psh(["","","","","  Mano de Obra:",null]);
+  const desEqRow=psh(["","","","","  Equipos:",null]);
+  psh([]);
+  r=psh(["Los valores de Precio (col D) y Cantidad/Horas (col E) son editables. Las fórmulas recalculan automáticamente.","","","","",""])-1;mg(r,0,5);
+
+  // Build worksheet
+  const ws=XLSX.utils.aoa_to_sheet(rows);
+  ws['!merges']=merges;
+  ws['!cols']=[{wch:5},{wch:48},{wch:14},{wch:18},{wch:22},{wch:20}];
+
+  // ── FORMULAS ──
+  // Material rows: F=D*E
+  for(let i=matStart;i<matEnd;i++){const rn=i+1;ws['F'+rn]={t:'n',f:'D'+rn+'*E'+rn};}
+  // Material subtotal
+  if(matEnd>matStart)ws['F'+matSubRow]={t:'n',f:'SUM(F'+(matStart+1)+':F'+matEnd+')'};
+  else ws['F'+matSubRow]={t:'n',v:0};
+
+  // MO rows: F=D*E
+  for(let i=moStart;i<moEnd;i++){const rn=i+1;ws['F'+rn]={t:'n',f:'D'+rn+'*E'+rn};}
+  if(moEnd>moStart)ws['F'+moSubRow]={t:'n',f:'SUM(F'+(moStart+1)+':F'+moEnd+')'};
+  else ws['F'+moSubRow]={t:'n',v:0};
+
+  // EQ rows: F=D*E or F=D*E*MoSubtotal
+  let eqIdx=0;
+  for(let i=eqStart;i<eqEnd;i++){
+    const rn=i+1;
+    if(eqIsPercent[eqIdx])ws['F'+rn]={t:'n',f:'D'+rn+'*E'+rn+'*F'+moSubRow};
+    else ws['F'+rn]={t:'n',f:'D'+rn+'*E'+rn};
+    eqIdx++;
+  }
+  if(eqEnd>eqStart)ws['F'+eqSubRow]={t:'n',f:'SUM(F'+(eqStart+1)+':F'+eqEnd+')'};
+  else ws['F'+eqSubRow]={t:'n',v:0};
+
+  // Costo Directo = sum of 3 subtotals
+  ws['E'+cdRow]={t:'n',f:'F'+matSubRow+'+F'+moSubRow+'+F'+eqSubRow};
+  ws['F'+cdRow]={t:'n',f:'F'+matSubRow+'+F'+moSubRow+'+F'+eqSubRow};
+
+  // Desglose
+  ws['F'+desMatRow]={t:'n',f:'F'+matSubRow};
+  ws['F'+desMoRow]={t:'n',f:'F'+moSubRow};
+  ws['F'+desEqRow]={t:'n',f:'F'+eqSubRow};
+
+  // Download
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,ws,'APU-'+padId);
+  XLSX.writeFile(wb,'APU-'+padId+'_'+apu.desc.substring(0,35).replace(/[^a-zA-Z0-9 ]/g,'').trim().replace(/ +/g,'_')+'.xlsx');
+};
+
+// ═══════ STYLES ═══════
+const S={
+  app:{minHeight:"100vh",display:"flex",flexDirection:"column"},
+  hdr:{background:"linear-gradient(180deg,var(--bg3),var(--bg2))",borderBottom:"1px solid var(--brd)",padding:"0 24px",display:"flex",alignItems:"stretch",justifyContent:"space-between",flexWrap:"wrap"},
+  brand:{display:"flex",alignItems:"center",gap:12,padding:"14px 0"},
+  logo:{width:32,height:32,background:"linear-gradient(135deg,var(--acc),var(--accD))",borderRadius:6,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:900,fontSize:14,color:"var(--bg)"},
+  brandT:{fontSize:14,fontWeight:700,color:"var(--accL)",letterSpacing:1},
+  brandS:{fontSize:10,color:"var(--txt2)",letterSpacing:.5},
+  nav:{display:"flex",alignItems:"stretch",gap:0},
+  navB:(a)=>({padding:"0 20px",display:"flex",alignItems:"center",cursor:"pointer",fontSize:12,fontWeight:a?700:500,color:a?"var(--accL)":"var(--txt2)",borderBottom:a?"2px solid var(--acc)":"2px solid transparent",background:a?"rgba(212,160,23,0.06)":"transparent",transition:"all .2s",letterSpacing:.5}),
+  main:{flex:1,padding:"20px 24px",overflow:"auto"},
+  card:{background:"var(--bg2)",borderRadius:8,border:"1px solid var(--brd)",marginBottom:16,overflow:"hidden"},
+  cHead:{padding:"10px 16px",background:"var(--bg3)",borderBottom:"1px solid var(--brd)",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:8},
+  cTitle:{fontSize:12,fontWeight:700,color:"var(--acc)",textTransform:"uppercase",letterSpacing:1},
+  tbl:{width:"100%",borderCollapse:"collapse"},
+  th:{padding:"8px 12px",textAlign:"left",fontWeight:600,color:"var(--txt3)",borderBottom:"1px solid var(--brd)",fontSize:11,textTransform:"uppercase",letterSpacing:.8},
+  thR:{padding:"8px 12px",textAlign:"right",fontWeight:600,color:"var(--txt3)",borderBottom:"1px solid var(--brd)",fontSize:11,textTransform:"uppercase",letterSpacing:.8},
+  td:{padding:"7px 12px",borderBottom:"1px solid var(--bg3)",verticalAlign:"middle",fontSize:12,transition:"background .1s"},
+  tdR:{padding:"7px 12px",borderBottom:"1px solid var(--bg3)",textAlign:"right",fontVariantNumeric:"tabular-nums",fontSize:12,transition:"background .1s"},
+  inp:{background:"var(--bg4)",border:"1px solid var(--brd)",borderRadius:4,padding:"5px 8px",color:"var(--txt)",fontSize:12,width:"100%",outline:"none",transition:"border .2s"},
+  inpSm:{background:"var(--bg4)",border:"1px solid var(--brd)",borderRadius:3,padding:"4px 6px",color:"var(--txt)",fontSize:11,width:80,textAlign:"right",outline:"none"},
+  sel:{background:"var(--bg4)",border:"1px solid var(--brd)",borderRadius:4,padding:"5px 8px",color:"var(--txt)",fontSize:12,width:"100%",outline:"none"},
+  btn:{padding:"6px 16px",borderRadius:5,border:"none",cursor:"pointer",fontSize:11,fontWeight:700,background:"linear-gradient(135deg,var(--acc),var(--accD))",color:"var(--bg)",transition:"all .2s",letterSpacing:.5,textTransform:"uppercase"},
+  btnXL:{padding:"8px 20px",borderRadius:6,border:"none",cursor:"pointer",fontSize:12,fontWeight:700,background:"linear-gradient(135deg,var(--grn),#1a7a50)",color:"#fff",transition:"all .2s",letterSpacing:.5,display:"inline-flex",alignItems:"center",gap:6},
+  btnS:{padding:"4px 12px",borderRadius:4,border:"1px solid var(--brd)",cursor:"pointer",fontSize:11,fontWeight:600,background:"transparent",color:"var(--txt2)",transition:"all .2s"},
+  btnD:{padding:"3px 8px",borderRadius:3,border:"none",cursor:"pointer",fontSize:10,fontWeight:700,background:"rgba(192,57,43,0.15)",color:"var(--red)"},
+  badge:(c)=>({display:"inline-block",padding:"2px 10px",borderRadius:3,fontSize:11,fontWeight:700,background:c+"15",color:c,fontVariantNumeric:"tabular-nums"}),
+  link:{color:"var(--blue)",cursor:"pointer",textDecoration:"none",fontSize:12,transition:"color .2s"},
+  row:{display:"flex",gap:10,marginBottom:10,flexWrap:"wrap",alignItems:"flex-end"},
+  fld:(f)=>({flex:f||1,minWidth:100}),
+  lbl:{display:"block",fontSize:10,color:"var(--txt3)",marginBottom:3,fontWeight:600,textTransform:"uppercase",letterSpacing:.8},
+  divider:{height:1,background:"var(--brd)",margin:"16px 0"},
+  tot:{background:"linear-gradient(135deg,var(--bg3),var(--bg4))",padding:"16px 20px",borderRadius:8,border:"1px solid var(--brd)",display:"flex",flexWrap:"wrap",gap:16,justifyContent:"space-between",alignItems:"center"},
+  totI:{textAlign:"center",minWidth:100},
+  totL:{fontSize:10,color:"var(--txt3)",marginBottom:2,textTransform:"uppercase",letterSpacing:.5},
+  totV:(big)=>({fontSize:big?20:14,fontWeight:800,color:big?"var(--accL)":"var(--txt)",fontVariantNumeric:"tabular-nums"}),
+  modal:{position:"fixed",top:0,left:0,right:0,bottom:0,background:"rgba(0,0,0,0.7)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:1000,padding:20},
+  modalC:{background:"var(--bg2)",borderRadius:10,border:"1px solid var(--brd)",padding:20,maxWidth:600,width:"100%",maxHeight:"80vh",overflow:"auto"},
+  stat:{display:"flex",gap:12,marginBottom:16,flexWrap:"wrap"},
+  statI:{flex:1,minWidth:120,background:"var(--bg3)",borderRadius:6,padding:"10px 14px",border:"1px solid var(--brd)"},
+  statL:{fontSize:10,color:"var(--txt3)",textTransform:"uppercase",letterSpacing:.5},
+  statV:{fontSize:16,fontWeight:800,fontVariantNumeric:"tabular-nums",marginTop:2},
+  foot:{padding:"8px 24px",borderTop:"1px solid var(--brd)",background:"var(--bg2)",display:"flex",justifyContent:"space-between",alignItems:"center",fontSize:10,color:"var(--txt3)",flexWrap:"wrap",gap:4},
+};
+
+// ═══════ RESUMEN ═══════
+const ViewResumen=()=>(
+  <React.Fragment>
+    <div style={S.stat}>
+      <div style={S.statI}><div style={S.statL}>Ítems APU</div><div style={{...S.statV,color:"var(--txt)"}}>{apus.length}</div></div>
+      <div style={S.statI}><div style={S.statL}>Costo Directo</div><div style={{...S.statV,color:"var(--txt)"}}>$ {fmt(resumen.cd)}</div></div>
+      <div style={S.statI}><div style={S.statL}>AIU Total</div><div style={{...S.statV,color:"var(--txt2)"}}>$ {fmt(resumen.aiuT)}</div></div>
+      <div style={{...S.statI,border:"1px solid rgba(212,160,23,0.2)"}}><div style={{...S.statL,color:"var(--acc)"}}>Valor Proyecto</div><div style={{...S.statV,color:"var(--accL)",fontSize:18}}>$ {fmt(resumen.gt)}</div></div>
+    </div>
+
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12,flexWrap:"wrap",gap:8}}>
+      <input style={{...S.inp,width:280,maxWidth:"100%"}} placeholder="Buscar por descripción o Nº..." value={search} onChange={e=>setSearch(e.target.value)}/>
+      <button style={S.btnS} onClick={()=>setShowAIU(!showAIU)}>{showAIU?"Cerrar AIU":"Config AIU"}</button>
+    </div>
+
+    {showAIU&&(
+      <div style={{...S.card,padding:16,marginBottom:16}}>
+        <div style={{...S.cTitle,marginBottom:12}}>Configuración AIU e IVA</div>
+        <div style={{display:"flex",flexWrap:"wrap",gap:20}}>
+          {[["Administración","admin"],["Imprevistos","imp"],["Utilidad","util"],["IVA (% s/Utilidad)","iva"]].map(([l,k])=>(
+            <div key={k} style={{display:"flex",alignItems:"center",gap:8}}>
+              <span style={{fontSize:11,color:"var(--txt2)",width:150}}>{l}</span>
+              <input style={{background:"var(--bg4)",border:"1px solid var(--brd)",borderRadius:3,padding:"4px 8px",color:"var(--txt)",fontSize:11,width:60,textAlign:"right",outline:"none"}} type="number" value={aiu[k]} onChange={e=>setAiu({...aiu,[k]:parseFloat(e.target.value)||0})}/>
+              <span style={{fontSize:11,color:"var(--txt3)"}}>%</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    )}
+
+    <div style={S.card}>
+      <div style={{overflowX:"auto"}}>
+        <table style={S.tbl}>
+          <thead><tr style={{background:"var(--bg3)"}}>
+            <th style={{...S.th,width:36}}>Nº</th><th style={S.th}>Descripción APU</th><th style={{...S.th,width:50}}>Und</th>
+            <th style={{...S.thR,width:85}}>Cant.</th><th style={{...S.thR,width:110}}>V.Unit</th><th style={{...S.thR,width:120}}>V.Total</th><th style={{...S.th,width:70}}></th>
+          </tr></thead>
+          <tbody>
+            {filtered.map(r=>(
+              <tr key={r.id}>
+                <td style={{...S.td,color:"var(--txt3)",fontSize:11,fontWeight:600}}>{r.id}</td>
+                <td style={S.td}><span style={S.link} onClick={()=>openAPU(r.id)}>{r.desc}</span></td>
+                <td style={{...S.td,color:"var(--txt2)",textAlign:"center"}}>{r.unit}</td>
+                <td style={S.tdR}><input style={S.inpSm} type="number" step="any" value={r.qty} onChange={e=>updateQty(r.id,e.target.value)}/></td>
+                <td style={{...S.tdR,color:"var(--txt2)"}}>$ {fmt(r.cd)}</td>
+                <td style={{...S.tdR,fontWeight:700}}>$ {fmt(r.total)}</td>
+                <td style={{...S.td,textAlign:"center",whiteSpace:"nowrap"}}>
+                  <button style={{...S.btnS,padding:"2px 6px",fontSize:10,color:"var(--grn)",borderColor:"rgba(45,156,111,0.3)"}} onClick={()=>downloadAPUExcel(r.id)} title="Descargar Excel">XLS</button>
+                  {' '}
+                  <button style={S.btnD} onClick={()=>deleteAPU(r.id)} title="Eliminar">✕</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div style={S.tot}>
+      <div style={S.totI}><div style={S.totL}>Costo Directo</div><div style={S.totV()}>$ {fmt(resumen.cd)}</div></div>
+      <div style={S.totI}><div style={S.totL}>Admin ({aiu.admin}%)</div><div style={S.totV()}>$ {fmt(resumen.admin)}</div></div>
+      <div style={S.totI}><div style={S.totL}>Imp ({aiu.imp}%)</div><div style={S.totV()}>$ {fmt(resumen.imp)}</div></div>
+      <div style={S.totI}><div style={S.totL}>Util ({aiu.util}%)</div><div style={S.totV()}>$ {fmt(resumen.util)}</div></div>
+      <div style={S.totI}><div style={S.totL}>IVA ({aiu.iva}% s/Util)</div><div style={S.totV()}>$ {fmt(resumen.ivaV)}</div></div>
+      <div style={{...S.totI,borderLeft:"3px solid var(--acc)"}}><div style={{...S.totL,color:"var(--acc)"}}>Valor Total</div><div style={S.totV(true)}>$ {fmt(resumen.gt)}</div></div>
+    </div>
+  </React.Fragment>
+);
+
+// ═══════ DETALLE APU ═══════
+const ViewDetalle=()=>{
+  if(!selAPU)return(
+    <div style={{textAlign:"center",padding:60,color:"var(--txt3)"}}>
+      <div style={{fontSize:40,marginBottom:12}}>📋</div>
+      <div style={{fontSize:14}}>Seleccione un APU desde el Resumen</div>
+      <div style={{display:"flex",justifyContent:"center",gap:8,marginTop:20,flexWrap:"wrap"}}>
+        {apus.slice(0,6).map(a=><button key={a.id} style={S.btnS} onClick={()=>setSelId(a.id)}>APU-{String(a.id).padStart(2,'0')}</button>)}
+      </div>
+    </div>
+  );
+  const c=selCalc;const idx=apus.findIndex(a=>a.id===selId);
+
+  return(
+    <React.Fragment>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14,flexWrap:"wrap",gap:8}}>
+        <div>
+          <div style={{fontSize:11,color:"var(--acc)",fontWeight:700,letterSpacing:1}}>APU-{String(selAPU.id).padStart(2,'0')} — {selAPU.unit}</div>
+          <div style={{fontSize:15,fontWeight:700,marginTop:2,maxWidth:600}}>{selAPU.desc}</div>
+        </div>
+        <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+          <button style={S.btnS} disabled={idx<=0} onClick={()=>setSelId(apus[idx-1]?.id)}>◀ Ant</button>
+          <button style={S.btnS} disabled={idx>=apus.length-1} onClick={()=>setSelId(apus[idx+1]?.id)}>Sig ▶</button>
+          <button style={{...S.btnS,color:"var(--grn)",borderColor:"rgba(45,156,111,0.4)"}} onClick={()=>downloadAPUExcel(selAPU.id)}>⬇ Excel</button>
+          <button style={S.btnS} onClick={()=>{setView("resumen");setSelId(null)}}>← Resumen</button>
+        </div>
+      </div>
+
+      {/* MATERIALES */}
+      <div style={S.card}>
+        <div style={S.cHead}><span style={S.cTitle}>1 · Materiales</span><span style={S.badge("var(--grn)")}>$ {fmt(c.ms)}</span></div>
+        <div style={{overflowX:"auto"}}><table style={S.tbl}>
+          <thead><tr style={{background:"var(--bg3)"}}><th style={S.th}>Descripción</th><th style={{...S.th,width:50}}>Und</th><th style={{...S.thR,width:100}}>P.Unit</th><th style={{...S.thR,width:75}}>Cant</th><th style={{...S.thR,width:105}}>Subtotal</th><th style={{...S.th,width:32}}></th></tr></thead>
+          <tbody>{selAPU.mat.map((m,i)=>{const cat=getMat(m.cid);if(!cat)return null;return(
+            <tr key={i}><td style={S.td}>{cat.d}</td><td style={{...S.td,color:"var(--txt3)"}}>{cat.u}</td>
+            <td style={{...S.tdR,color:"var(--txt2)"}}>$ {fmt2(cat.p)}</td>
+            <td style={S.tdR}><input style={S.inpSm} type="number" step="any" value={m.q} onChange={e=>updateInsumoField(selAPU.id,"mat",i,"q",e.target.value)}/></td>
+            <td style={{...S.tdR,fontWeight:700}}>$ {fmt(cat.p*m.q)}</td>
+            <td style={S.td}><button style={S.btnD} onClick={()=>removeInsumo(selAPU.id,"mat",i)}>✕</button></td></tr>
+          )})}</tbody>
+        </table></div>
+      </div>
+
+      {/* MANO DE OBRA */}
+      <div style={S.card}>
+        <div style={S.cHead}><span style={S.cTitle}>2 · Mano de Obra</span><span style={S.badge("var(--blue)")}>$ {fmt(c.ls)}</span></div>
+        <div style={{overflowX:"auto"}}><table style={S.tbl}>
+          <thead><tr style={{background:"var(--bg3)"}}><th style={S.th}>Descripción</th><th style={{...S.thR,width:95}}>Jornal</th><th style={{...S.thR,width:95}}>V.Hora</th><th style={{...S.thR,width:75}}>Hrs</th><th style={{...S.thR,width:105}}>Subtotal</th><th style={{...S.th,width:32}}></th></tr></thead>
+          <tbody>{selAPU.mo.map((m,i)=>{const cat=getMo(m.cid);if(!cat)return null;return(
+            <tr key={i}><td style={S.td}>{cat.d}</td><td style={{...S.tdR,color:"var(--txt2)"}}>$ {fmt(cat.j)}</td>
+            <td style={{...S.tdR,color:"var(--txt2)"}}>$ {fmt2(cat.vh)}</td>
+            <td style={S.tdR}><input style={S.inpSm} type="number" step="any" value={m.h} onChange={e=>updateInsumoField(selAPU.id,"mo",i,"h",e.target.value)}/></td>
+            <td style={{...S.tdR,fontWeight:700}}>$ {fmt(cat.vh*m.h)}</td>
+            <td style={S.td}><button style={S.btnD} onClick={()=>removeInsumo(selAPU.id,"mo",i)}>✕</button></td></tr>
+          )})}</tbody>
+        </table></div>
+      </div>
+
+      {/* EQUIPOS */}
+      <div style={S.card}>
+        <div style={S.cHead}><span style={S.cTitle}>3 · Equipos y Herramienta</span><span style={S.badge("#9b59b6")}>$ {fmt(c.es)}</span></div>
+        <div style={{overflowX:"auto"}}><table style={S.tbl}>
+          <thead><tr style={{background:"var(--bg3)"}}><th style={S.th}>Descripción</th><th style={{...S.th,width:50}}>Und</th><th style={{...S.thR,width:95}}>Tarifa</th><th style={{...S.thR,width:75}}>Cant</th><th style={{...S.thR,width:105}}>Subtotal</th><th style={{...S.th,width:32}}></th></tr></thead>
+          <tbody>{selAPU.eq.map((e,i)=>{const cat=getEq(e.cid);if(!cat)return null;const sub=cat.u==="%MO"?cat.t*e.q*c.ls:cat.t*e.q;return(
+            <tr key={i}><td style={S.td}>{cat.d}</td><td style={{...S.td,color:"var(--txt3)"}}>{cat.u}</td>
+            <td style={{...S.tdR,color:"var(--txt2)"}}>$ {fmt2(cat.t)}</td>
+            <td style={S.tdR}><input style={S.inpSm} type="number" step="any" value={e.q} onChange={ev=>updateInsumoField(selAPU.id,"eq",i,"q",ev.target.value)}/></td>
+            <td style={{...S.tdR,fontWeight:700}}>$ {fmt(sub)}</td>
+            <td style={S.td}><button style={S.btnD} onClick={()=>removeInsumo(selAPU.id,"eq",i)}>✕</button></td></tr>
+          )})}</tbody>
+        </table></div>
+      </div>
+
+      <div style={{display:"flex",gap:10,marginBottom:16,flexWrap:"wrap"}}>
+        <button style={S.btn} onClick={()=>setModal({type:"addInsumo",apuId:selAPU.id})}>+ Agregar Insumo</button>
+        <button style={S.btnXL} onClick={()=>downloadAPUExcel(selAPU.id)}>⬇ Descargar APU en Excel Formulado</button>
+      </div>
+
+      <div style={S.tot}>
+        <div style={S.totI}><div style={S.totL}>Materiales</div><div style={S.totV()}>$ {fmt(c.ms)}</div></div>
+        <div style={S.totI}><div style={S.totL}>Mano de Obra</div><div style={S.totV()}>$ {fmt(c.ls)}</div></div>
+        <div style={S.totI}><div style={S.totL}>Equipos</div><div style={S.totV()}>$ {fmt(c.es)}</div></div>
+        <div style={{...S.totI,borderLeft:"3px solid var(--acc)"}}><div style={{...S.totL,color:"var(--acc)"}}>Costo Directo / {selAPU.unit}</div><div style={S.totV(true)}>$ {fmt(c.cd)}</div></div>
+      </div>
+    </React.Fragment>
+  );
+};
+
+// ═══════ CATÁLOGOS ═══════
+const ViewCatalogs=()=>{
+  const fMc=catSearch?mc.filter(m=>m.d.toLowerCase().includes(catSearch.toLowerCase())):mc;
+  const fEc=catSearch?ec.filter(e=>e.d.toLowerCase().includes(catSearch.toLowerCase())):ec;
+  return(
+    <React.Fragment>
+      <div style={{display:"flex",gap:0,marginBottom:16,borderBottom:"1px solid var(--brd)"}}>
+        {["Materiales","Mano de Obra","Equipos"].map((t,i)=>(
+          <div key={i} style={{...S.navB(catTab===i),padding:"10px 20px"}} onClick={()=>setCatTab(i)}>{t} <span style={{marginLeft:6,fontSize:10,color:catTab===i?"var(--accD)":"var(--txt3)"}}>({i===0?mc.length:i===1?lc.length:ec.length})</span></div>
+        ))}
+      </div>
+      <div style={{fontSize:11,color:"var(--acc)",marginBottom:12,padding:"8px 12px",background:"rgba(212,160,23,0.06)",borderRadius:4,border:"1px solid rgba(212,160,23,0.12)"}}>
+        Los cambios de precio aquí se reflejan automáticamente en todos los APUs vinculados.
+      </div>
+
+      {catTab===0&&(
+        <div style={S.card}>
+          <div style={{padding:14,borderBottom:"1px solid var(--brd)"}}>
+            <div style={{...S.cTitle,marginBottom:10}}>Agregar Nuevo Material</div>
+            <div style={S.row}>
+              <div style={S.fld(3)}><label style={S.lbl}>Descripción</label><input style={S.inp} value={newMat.d} onChange={e=>setNewMat({...newMat,d:e.target.value})} placeholder="Ej: Cemento Portland CPC 30R"/></div>
+              <div style={S.fld()}><label style={S.lbl}>Unidad</label><input style={S.inp} value={newMat.u} onChange={e=>setNewMat({...newMat,u:e.target.value})} placeholder="kg, m²"/></div>
+              <div style={S.fld()}><label style={S.lbl}>Precio MXN</label><input style={S.inp} type="number" step="any" value={newMat.p} onChange={e=>setNewMat({...newMat,p:e.target.value})}/></div>
+              <div style={{display:"flex",alignItems:"flex-end"}}><button style={S.btn} onClick={addNewMaterial}>+ Agregar</button></div>
+            </div>
+          </div>
+          <div style={{padding:"8px 14px",borderBottom:"1px solid var(--brd)"}}><input style={{...S.inp,width:260}} placeholder="Filtrar materiales..." value={catSearch} onChange={e=>setCatSearch(e.target.value)}/></div>
+          <div style={{overflowX:"auto",maxHeight:420,overflow:"auto"}}><table style={S.tbl}>
+            <thead><tr style={{background:"var(--bg3)",position:"sticky",top:0,zIndex:1}}><th style={{...S.th,width:36}}>ID</th><th style={S.th}>Descripción</th><th style={{...S.th,width:55}}>Und</th><th style={{...S.thR,width:130}}>Precio MXN</th></tr></thead>
+            <tbody>{fMc.map(m=><tr key={m.id}><td style={{...S.td,color:"var(--txt3)",fontSize:10}}>{m.id}</td><td style={S.td}>{m.d}</td><td style={{...S.td,color:"var(--txt3)"}}>{m.u}</td><td style={S.tdR}><input style={{...S.inpSm,width:100}} type="number" step="any" value={m.p} onChange={e=>updateCatPrice("mat",m.id,"p",e.target.value)}/></td></tr>)}</tbody>
+          </table></div>
+        </div>
+      )}
+      {catTab===1&&(
+        <div style={S.card}>
+          <div style={{padding:14,borderBottom:"1px solid var(--brd)"}}>
+            <div style={{...S.cTitle,marginBottom:10}}>Agregar Mano de Obra</div>
+            <div style={S.row}>
+              <div style={S.fld(3)}><label style={S.lbl}>Descripción</label><input style={S.inp} value={newMo.d} onChange={e=>setNewMo({...newMo,d:e.target.value})} placeholder="Ej: Maestro albañil"/></div>
+              <div style={S.fld()}><label style={S.lbl}>Jornal/día MXN</label><input style={S.inp} type="number" step="any" value={newMo.j} onChange={e=>setNewMo({...newMo,j:e.target.value})}/></div>
+              <div style={{display:"flex",alignItems:"flex-end"}}><button style={S.btn} onClick={addNewLabor}>+ Agregar</button></div>
+            </div>
+          </div>
+          <div style={{overflowX:"auto"}}><table style={S.tbl}>
+            <thead><tr style={{background:"var(--bg3)"}}><th style={{...S.th,width:36}}>ID</th><th style={S.th}>Descripción</th><th style={{...S.thR,width:130}}>Jornal/día</th><th style={{...S.thR,width:130}}>Valor/Hora</th></tr></thead>
+            <tbody>{lc.map(m=><tr key={m.id}><td style={{...S.td,color:"var(--txt3)",fontSize:10}}>{m.id}</td><td style={S.td}>{m.d}</td><td style={S.tdR}><input style={{...S.inpSm,width:100}} type="number" step="any" value={m.j} onChange={e=>updateCatPrice("mo",m.id,"j",e.target.value)}/></td><td style={{...S.tdR,color:"var(--txt2)"}}>$ {fmt2(m.vh)}</td></tr>)}</tbody>
+          </table></div>
+        </div>
+      )}
+      {catTab===2&&(
+        <div style={S.card}>
+          <div style={{padding:14,borderBottom:"1px solid var(--brd)"}}>
+            <div style={{...S.cTitle,marginBottom:10}}>Agregar Equipo</div>
+            <div style={S.row}>
+              <div style={S.fld(3)}><label style={S.lbl}>Descripción</label><input style={S.inp} value={newEq.d} onChange={e=>setNewEq({...newEq,d:e.target.value})} placeholder="Ej: Compactador vibratorio"/></div>
+              <div style={S.fld()}><label style={S.lbl}>Unidad</label><input style={S.inp} value={newEq.u} onChange={e=>setNewEq({...newEq,u:e.target.value})} placeholder="día, hora, %MO"/></div>
+              <div style={S.fld()}><label style={S.lbl}>Tarifa MXN</label><input style={S.inp} type="number" step="any" value={newEq.t} onChange={e=>setNewEq({...newEq,t:e.target.value})}/></div>
+              <div style={{display:"flex",alignItems:"flex-end"}}><button style={S.btn} onClick={addNewEquip}>+ Agregar</button></div>
+            </div>
+          </div>
+          <div style={{overflowX:"auto",maxHeight:420,overflow:"auto"}}><table style={S.tbl}>
+            <thead><tr style={{background:"var(--bg3)",position:"sticky",top:0,zIndex:1}}><th style={{...S.th,width:36}}>ID</th><th style={S.th}>Descripción</th><th style={{...S.th,width:55}}>Und</th><th style={{...S.thR,width:130}}>Tarifa MXN</th></tr></thead>
+            <tbody>{ec.map(e=><tr key={e.id}><td style={{...S.td,color:"var(--txt3)",fontSize:10}}>{e.id}</td><td style={S.td}>{e.d}</td><td style={{...S.td,color:"var(--txt3)"}}>{e.u}</td><td style={S.tdR}><input style={{...S.inpSm,width:100}} type="number" step="any" value={e.t} onChange={ev=>updateCatPrice("eq",e.id,"t",ev.target.value)}/></td></tr>)}</tbody>
+          </table></div>
+        </div>
+      )}
+    </React.Fragment>
+  );
+};
+
+// ═══════ NUEVO APU ═══════
+const ViewNewAPU=()=>{
+  const matS=newForm.mat.reduce((s,m)=>{const c=getMat(m.cid);return s+(c?c.p*m.q:0)},0);
+  const moS=newForm.mo.reduce((s,m)=>{const c=getMo(m.cid);return s+(c?c.vh*m.h:0)},0);
+  const eqS=newForm.eq.reduce((s,e)=>{const c=getEq(e.cid);if(!c)return s;return s+(c.u==="%MO"?c.t*e.q*moS:c.t*e.q)},0);
+
+  const SecBlock=({title,sec,type,items})=>(
+    <div style={{marginBottom:16}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+        <span style={{...S.cTitle,fontSize:11}}>{title}</span>
+        <button style={S.btnS} onClick={()=>setModal({type:"addNew",sec:type})}>+ Agregar</button>
+      </div>
+      {items.length>0&&<table style={{...S.tbl,marginBottom:8}}><tbody>{items.map((it,i)=>{
+        let cat,sub;
+        if(type==="mat"){cat=getMat(it.cid);sub=cat?cat.p*it.q:0}
+        else if(type==="mo"){cat=getMo(it.cid);sub=cat?cat.vh*it.h:0}
+        else{cat=getEq(it.cid);sub=cat?(cat.u==="%MO"?cat.t*it.q*moS:cat.t*it.q):0}
+        return cat?<tr key={i}><td style={S.td}>{cat.d}</td><td style={{...S.tdR,width:100}}>$ {fmt(sub)}</td><td style={{...S.td,width:32}}><button style={S.btnD} onClick={()=>removeNewAPU(sec,i)}>✕</button></td></tr>:null;
+      })}</tbody></table>}
+      {items.length===0&&<div style={{fontSize:11,color:"var(--txt3)",padding:"8px 0"}}>Sin insumos.</div>}
+    </div>
+  );
+
+  return(
+    <React.Fragment>
+      <div style={{fontSize:16,fontWeight:700,marginBottom:16}}>Crear Nuevo APU</div>
+      <div style={S.card}><div style={{padding:16}}>
+        <div style={S.row}>
+          <div style={S.fld(4)}><label style={S.lbl}>Descripción</label><input style={S.inp} value={newForm.desc} onChange={e=>setNewForm({...newForm,desc:e.target.value})} placeholder="SUMINISTRO E INSTALACIÓN DE..."/></div>
+          <div style={S.fld()}><label style={S.lbl}>Unidad</label><input style={S.inp} value={newForm.unit} onChange={e=>setNewForm({...newForm,unit:e.target.value})}/></div>
+        </div>
+        <div style={S.divider}/>
+        <SecBlock title="1 · Materiales" sec="mat" type="mat" items={newForm.mat}/>
+        <SecBlock title="2 · Mano de Obra" sec="mo" type="mo" items={newForm.mo}/>
+        <SecBlock title="3 · Equipos" sec="eq" type="eq" items={newForm.eq}/>
+        <div style={{...S.tot,marginTop:16}}>
+          <div style={S.totI}><div style={S.totL}>Mat</div><div style={S.totV()}>$ {fmt(matS)}</div></div>
+          <div style={S.totI}><div style={S.totL}>M.O.</div><div style={S.totV()}>$ {fmt(moS)}</div></div>
+          <div style={S.totI}><div style={S.totL}>Eq</div><div style={S.totV()}>$ {fmt(eqS)}</div></div>
+          <div style={{...S.totI,borderLeft:"3px solid var(--acc)"}}><div style={{...S.totL,color:"var(--acc)"}}>C.D.</div><div style={S.totV(true)}>$ {fmt(matS+moS+eqS)}</div></div>
+        </div>
+        <div style={{marginTop:16}}><button style={S.btn} onClick={createAPU}>Crear APU #{Math.max(0,...apus.map(a=>a.id))+1}</button></div>
+      </div></div>
+    </React.Fragment>
+  );
+};
+
+// ═══════ MODAL ═══════
+const ModalInsumo=({onAdd,title})=>(
+  <div style={S.modal} onClick={e=>{if(e.target===e.currentTarget)setModal(null)}}>
+    <div style={S.modalC}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+        <span style={{...S.cTitle,fontSize:13}}>{title||"Agregar Insumo"}</span>
+        <button style={S.btnS} onClick={()=>setModal(null)}>Cerrar</button>
+      </div>
+      <div style={S.row}><div style={S.fld()}>
+        <label style={S.lbl}>Tipo</label>
+        <select style={S.sel} value={addForm.type} onChange={e=>setAddForm({...addForm,type:e.target.value,cid:""})}>
+          <option value="mat">Material</option><option value="mo">Mano de Obra</option><option value="eq">Equipo</option>
+        </select>
+      </div></div>
+      <div style={S.row}>
+        <div style={S.fld(3)}>
+          <label style={S.lbl}>Catálogo</label>
+          <select style={S.sel} value={addForm.cid} onChange={e=>setAddForm({...addForm,cid:e.target.value})}>
+            <option value="">— Seleccionar —</option>
+            {addForm.type==="mat"&&mc.map(c=><option key={c.id} value={c.id}>{c.d} ({c.u}) — ${fmt(c.p)}</option>)}
+            {addForm.type==="mo"&&lc.map(c=><option key={c.id} value={c.id}>{c.d} — ${fmt(c.vh)}/hr</option>)}
+            {addForm.type==="eq"&&ec.map(c=><option key={c.id} value={c.id}>{c.d} ({c.u}) — ${fmt(c.t)}</option>)}
+          </select>
+        </div>
+        <div style={S.fld(.8)}>
+          <label style={S.lbl}>{addForm.type==="mo"?"Horas":"Cantidad"}</label>
+          <input style={S.inp} type="number" step="any" value={addForm.type==="mo"?addForm.h:addForm.qty} onChange={e=>{
+            if(addForm.type==="mo")setAddForm({...addForm,h:e.target.value});else setAddForm({...addForm,qty:e.target.value});
+          }}/>
+        </div>
+      </div>
+      <div style={{display:"flex",gap:8,marginTop:12}}>
+        <button style={S.btn} onClick={()=>{onAdd();setModal(null)}}>Agregar</button>
+        <button style={S.btnS} onClick={()=>setModal(null)}>Cancelar</button>
+      </div>
+    </div>
+  </div>
+);
+
+// ═══════ RENDER ═══════
+return(
+  <div style={S.app}>
+    <div style={S.hdr}>
+      <div style={S.brand}>
+        <div style={S.logo}>AP</div>
+        <div><div style={S.brandT}>PRESUPUESTO APU</div><div style={S.brandS}>Vivienda Unifamiliar · 300 m² · {apus.length} ítems</div></div>
+      </div>
+      <div style={S.nav}>
+        {[["resumen","Resumen"],["detalle","Detalle APU"],["catalogs","Catálogos"],["nuevo","+ Nuevo APU"]].map(([k,l])=>(
+          <div key={k} style={S.navB(view===k)} onClick={()=>setView(k)}>{l}</div>
+        ))}
+      </div>
+    </div>
+    <div style={S.main}>
+      {view==="resumen"&&<ViewResumen/>}
+      {view==="detalle"&&<ViewDetalle/>}
+      {view==="catalogs"&&<ViewCatalogs/>}
+      {view==="nuevo"&&<ViewNewAPU/>}
+    </div>
+
+    {modal&&modal.type==="addInsumo"&&<ModalInsumo onAdd={()=>addInsumoToAPU(modal.apuId)} title="Agregar Insumo al APU"/>}
+    {modal&&modal.type==="addNew"&&(
+      <div style={S.modal} onClick={e=>{if(e.target===e.currentTarget)setModal(null)}}>
+        <div style={S.modalC}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+            <span style={{...S.cTitle,fontSize:13}}>Agregar al Nuevo APU</span>
+            <button style={S.btnS} onClick={()=>setModal(null)}>Cerrar</button>
+          </div>
+          <div style={S.row}><div style={S.fld(3)}>
+            <label style={S.lbl}>Catálogo</label>
+            <select style={S.sel} value={addForm.cid} onChange={e=>setAddForm({...addForm,type:modal.sec,cid:e.target.value})}>
+              <option value="">— Seleccionar —</option>
+              {modal.sec==="mat"&&mc.map(c=><option key={c.id} value={c.id}>{c.d} ({c.u}) — ${fmt(c.p)}</option>)}
+              {modal.sec==="mo"&&lc.map(c=><option key={c.id} value={c.id}>{c.d} — ${fmt(c.vh)}/hr</option>)}
+              {modal.sec==="eq"&&ec.map(c=><option key={c.id} value={c.id}>{c.d} ({c.u}) — ${fmt(c.t)}</option>)}
+            </select>
+          </div>
+          <div style={S.fld(.8)}>
+            <label style={S.lbl}>{modal.sec==="mo"?"Horas":"Cantidad"}</label>
+            <input style={S.inp} type="number" step="any" value={modal.sec==="mo"?addForm.h:addForm.qty} onChange={e=>{
+              if(modal.sec==="mo")setAddForm({...addForm,h:e.target.value});else setAddForm({...addForm,qty:e.target.value});
+            }}/>
+          </div></div>
+          <div style={{display:"flex",gap:8,marginTop:12}}>
+            <button style={S.btn} onClick={()=>{addToNewAPU(modal.sec);setModal(null)}}>Agregar</button>
+            <button style={S.btnS} onClick={()=>setModal(null)}>Cancelar</button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    <div style={S.foot}>
+      <span>Sistema APU · {mc.length} materiales · {lc.length} M.O. · {ec.length} equipos</span>
+      <span style={{fontVariantNumeric:"tabular-nums"}}>Total: <span style={{color:"var(--accL)",fontWeight:700}}>$ {fmt(resumen.gt)} MXN</span></span>
+    </div>
+  </div>
+);
+}
+
+ReactDOM.render(React.createElement(App), document.getElementById('root'));
+</script>
+</body>
+</html>
